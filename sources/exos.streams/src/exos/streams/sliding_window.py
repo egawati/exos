@@ -44,12 +44,7 @@ class TemporalSlidingWindow(object):
     sliding_size : np.timedelta64, default 1 minute
         Time interval to slide the window
 
-    Raises
-    ------
-    ValueError
-        If at any moment, a sample with a different number of attributes than
-         those already observed is passed.
-
+    
     Notes
     -----
     It updates its stored samples by the FIFO method, which means

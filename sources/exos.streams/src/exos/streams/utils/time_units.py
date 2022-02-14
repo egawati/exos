@@ -31,5 +31,5 @@ def time_unit_numpy(time_unit):
     elif time_unit == "years":
         time_npunit = "Y"
     else:
-        logging.info(f('Undefined time unit {time_unit}'))
+        time_npunit = time_unit
     return time_npunit
