@@ -2,9 +2,6 @@ import numpy as np
 import time
 import math
 from numpy.linalg import qr
-from sklearn.decomposition import PCA
-from sklearn.metrics import mean_squared_error
-from scipy.linalg.interpolative import estimate_spectral_norm
 
 import logging
 logging.basicConfig(format='%(message)s', level=logging.INFO)
