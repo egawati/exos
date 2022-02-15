@@ -69,10 +69,9 @@ def stream_producer(condition, queues, source, source_id, window_size):
         if not source.has_more_samples():
             return 
         else:
-            
             X, y, _, _, _ = source.next_sample(window_size)
             queues[source_id].put((X, source_id))
-            print("Produced {} = {}".format(source_id, X))
+            logging.info("Produced {} = {}".format(source_id, X))
             with condition:
                 condition.wait()
         
