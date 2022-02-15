@@ -18,7 +18,6 @@ setup(
     author='Egawati Panjei',
     author_email='egawati.panjei@gmail.com',
     description="Outlier Explainer",
-    long_description=(_read('README.rst') + '\n\n' + _read("CHANGES.rst")),
     license='Apache',
     keywords='Base',
     classifiers=[
