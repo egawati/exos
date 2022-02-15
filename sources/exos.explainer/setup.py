@@ -30,7 +30,7 @@ setup(
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
     ],
-    url="https://github.com/NextThought/nti.contenttools",
+    url="https://github.com/egawati/EXOS.git",
     zip_safe=True,
     packages=find_packages('src'),
     package_dir={'': 'src'},
