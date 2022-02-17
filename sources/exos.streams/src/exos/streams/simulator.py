@@ -22,6 +22,7 @@ def concatenate_buffers(hash_d, n_streams):
     n_streams : int
         number of principle component
     Returns
+    -------
     arr : np.array
         numpy array of shape n_points x total number of attributes
     -------
@@ -38,29 +39,19 @@ def concatenate_buffers(hash_d, n_streams):
             arr = np.vstack((arr, new_point))
     return arr
 
-
-def concatenate_buffers(hash_d, n_streams):
-    n_points = hash_d[0].shape[0] #the number of data points in each streams
-    arr = None
-    for i in range(n_points):
-        new_point = hash_d[0][i]
-        for j in range(1, n_streams):
-            new_point = np.concatenate((new_point, hash_d[j][i]))
-        if arr is None:
-            arr = new_point
-        else:
-            arr = np.vstack((arr, new_point))
-    return arr
-
-def run_estimator(est_queue, hash_d, n_streams):
+def run_dbpca_estimator(est_queue, hash_d, n_streams, Q_queue, d, k):
     arr = concatenate_buffers(hash_d, n_streams)
-    est_queue.put(arr)
+    W = arr.T
+    Q = Q_queue.get()
+    Q = dbpca.update_Q(W,d,k,Q)
+    Q_queue.put(Q)
+    est_queue.put(Q)
 
 def run_temporal_neighbors(neigh_queues, buffer, stream_id, ncluster, init_data):
     clustering = temporal_neighbor.cluster_data(buffer, ncluster, init_data)
     neigh_queues[stream_id].put((stream_id, clustering))
 
-def run_exos(buffer_queue, experiment_queue, n_streams, n_clusters=(), n_init_data=()):
+def run_experiment(buffer_queue, experiment_queue, n_streams, Q_queue, d, k, n_clusters=(), n_init_data=()):
     """
     call EXOS here
     """
@@ -68,11 +59,12 @@ def run_exos(buffer_queue, experiment_queue, n_streams, n_clusters=(), n_init_da
     neigh_queues = [Queue()] * n_streams
     neigh_d_result = {}
     neighs = list()
+    
     while True:
         hash_d = buffer_queue.get()
         if hash_d is not None:
-            estimator = Process(target=run_estimator, 
-                                args=(est_queue, hash_d, n_streams), 
+            estimator = Process(target=run_dbpca_estimator, 
+                                args=(est_queue, hash_d, n_streams, Q_queue, d , k), 
                                 daemon=True)
             estimator.start()
             ## get the value put into est_queue in run_estimator
@@ -102,22 +94,6 @@ def run_exos(buffer_queue, experiment_queue, n_streams, n_clusters=(), n_init_da
                 neigh_d_result[stream_id] = clustering
             experiment_queue.put((estimator_result, neigh_d_result))
 
-        else:
-            experiment_queue.put(hash_d)
-            return 
-
-def run_dbpca_experiment(buffer_queue, experiment_queue, n_streams, window_size, init_Q, d, k):
-    """
-    call EXOS with dpbca here
-    """
-    Q = init_Q 
-    while True:
-        hash_d = buffer_queue.get()
-        if hash_d is not None:
-            arr = concatenate_buffers(hash_d, n_streams)
-            W = arr.T
-            Q = update_Q(W,d,k,Q)
-            experiment_queue.put(Q)
         else:
             experiment_queue.put(hash_d)
             return 
