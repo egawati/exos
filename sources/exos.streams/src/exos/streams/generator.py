@@ -70,22 +70,25 @@ def stream_producer(condition, queues, source, source_id, window_size):
             return 
         else:
             X, y, _, _, _ = source.next_sample(window_size)
-            queues[source_id].put((X, source_id))
-            logging.info("Produced {} = {}".format(source_id, X))
+            queues[source_id].put((X, y, source_id))
+            print("Produced {} = {}".format(source_id, X))
             with condition:
                 condition.wait()
         
-def stream_consumer(condition, queues, buffer_queue):
-    d = {}
+def stream_consumer(condition, queues, buffer_queue, y_queue):
+    hash_d = {}
+    y_d = {}
     while True:
         results = [queue.get() for queue in queues]
-
         for result in results:
             if result is None:
                 return
-
-        for X,source_id in results:
-            d[source_id] = X
-        buffer_queue.put(d)
+        for X, y, source_id in results:
+            hash_d[source_id] = X
+            ### assuming we have run outlier detection
+            ### a data point is an outlier is = 1
+            y_d[source_id] = np.where(y==1)[0] 
+        buffer_queue.put(hash_d)
+        y_queue.put(y_d)
         with condition:
             condition.notify_all()
