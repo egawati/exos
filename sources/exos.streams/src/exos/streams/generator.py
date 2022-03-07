@@ -71,7 +71,7 @@ def stream_producer(condition, queues, source, source_id, window_size):
         else:
             X, y, _, _, _ = source.next_sample(window_size)
             queues[source_id].put((X, y, source_id))
-            print("Produced {} = {}".format(source_id, X))
+            #print("Produced {} = {}".format(source_id, X))
             with condition:
                 condition.wait()
         

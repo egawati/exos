@@ -6,7 +6,7 @@ from sklearn.neighbors import NearestNeighbors
 import logging
 logging.basicConfig(format='%(message)s', level=logging.INFO)
 
-def generate_outlier_class(inlier_class, outlier, d, round_flag=False, multiplier = 10):
+def generate_outlier_class(est_outlier, outlier, d, round_flag=False, multiplier = 10):
     """
     Parameters
     ----------
@@ -21,23 +21,27 @@ def generate_outlier_class(inlier_class, outlier, d, round_flag=False, multiplie
     multiplier: int
         determine the number of sampling to generate
     """
-    neighbors = NearestNeighbors(n_neighbors=1, n_jobs=-1).fit(inlier_class)
-    neighbor_min_dist = neighbors.kneighbors([outlier])[0][0, 0] / d
-    covariance = np.identity(d) * neighbor_min_dist / (3**2)
+    dist = np.linalg.norm(est_outlier-outlier)
+    covariance = np.identity(d) * dist / (3**2)
     n = d * multiplier
-    gaussian_data = np.random.multivariate_normal(outlier)
+    gaussian_data = np.random.multivariate_normal(outlier, covariance, n)
     if round_flag:
         gaussian_data = np.round(gaussian_data)
     outlier_class = np.vstack((gaussian_data, outlier))
     return outlier_class
 
-
-    
 def generate_inlier_class(est_outlier, inlier_centers, d, round_flag=False, multiplier=10):
-    neighbors = NearestNeighbors(n_neighbors=1, n_jobs=-1).fit(inlier_centers)
-    neighbor_min_dist = neighbors.kneighbors([est_outlier])[0][0, 0] / d
-    inlier_nearest_neighbor = neighbors.kneighbors(est_outlier)
-    covariance = np.identity(d) * neighbor_min_dist / (3**2)
+    min_dist = np.linalg.norm(est_outlier-inlier_centers[0,:])
+    inlier_nearest_neighbor = inlier_centers[0,:]
+    for i in range(1, inlier_centers.shape[0]):        
+        dist = np.linalg.norm(est_outlier-inlier_centers[i,:])
+        if min_dist < dist:
+            min_dist = dist
+            inlier_nearest_neighbor = inlier_centers[0,:]
+
+    #logging.info(f'inlier {inlier_nearest_neighbor.shape}')
+    covariance = np.identity(d) * min_dist / (3**2)
+    #logging.info(f'd {d}')
     n = d * multiplier
     gaussian_data = np.random.multivariate_normal(inlier_nearest_neighbor, covariance, n)
     if round_flag:
@@ -114,9 +118,10 @@ def find_outlying_attributes(outlier_point, est_outlier, inlier_centroids,
     round_flag
         whether to round each generated sampling
     """
-    inlier_class = generate_inlier_class(est_outlier, inlier_centers, d, round_flag, multiplier)
-    outlier_class = generate_outlier_class(inlier_class, outlier_point, d, round_flag, multiplier)
+    inlier_class = generate_inlier_class(est_outlier, inlier_centroids, d, round_flag, multiplier)
+    #logging.info(f'inlier class {inlier_class}')
+    outlier_class = generate_outlier_class(est_outlier, outlier_point, d, round_flag, multiplier)
+    #logging.info(f'outlier class {outlier_class}')
     classifier = run_svc(outlier_class, inlier_class)
     feature_scores = compute_simple_feature_contribution(d, (classifier,))
     return map_feature_scores(feature_names, feature_scores)
-    
