@@ -56,7 +56,7 @@ def cluster_data(X, k=8, init_data=None):
 	init_data : when it is not None, it is a numpy array of size n x d
 	"""
 	d = X.shape[1]
-	clustering = SequentialKMeans(d, k)
+	clustering = SequentialKMeans(d, k, init_data)
 	for i in range(X.shape[0]):
 	    x = X[i,:]
 	    clustering.absorb_incoming_datum(x, label=True)
