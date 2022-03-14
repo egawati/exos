@@ -71,24 +71,38 @@ def stream_producer(condition, queues, source, source_id, window_size):
         else:
             X, y, _, _, _ = source.next_sample(window_size)
             queues[source_id].put((X, y, source_id))
-            #print("Produced {} = {}".format(source_id, X))
+            print(f"Produced {source_id}")
             with condition:
                 condition.wait()
         
-def stream_consumer(condition, queues, buffer_queue, y_queue):
-    hash_d = {}
-    y_d = {}
-    while True:
-        results = [queue.get() for queue in queues]
-        for result in results:
-            if result is None:
-                return
-        for X, y, source_id in results:
-            hash_d[source_id] = X
-            ### assuming we have run outlier detection
-            ### a data point is an outlier is = 1
-            y_d[source_id] = np.where(y==1)[0] 
-        buffer_queue.put(hash_d)
-        y_queue.put(y_d)
-        with condition:
-            condition.notify_all()
+def stream_consumer(condition, queues, buffer_queue, buffer_queues, y_queue):
+	"""
+	condition: mp.Condition
+	queues: list of Queues (of length n_stream)
+		used to get data from stream_producer
+	buffer_queue: Queue
+		used to put data sent to the estimator process
+	buffer_queues: list of Queues (of length n_stream)
+		used to put data to send to the temporal neighbor proceses
+	y_queue: queue
+		used to put info about outliers 
+	"""
+	hash_d = {}
+	y_d = {}
+	while True:
+	    results = [queue.get() for queue in queues]
+	    for result in results:
+	        if result is None:
+	        	print(f'result is None {results}')
+	        	return
+	    print('at consumer')
+	    for X, y, source_id in results:
+	        hash_d[source_id] = X
+	        ### assuming we have run outlier detection
+	        ### a data point is an outlier is = 1
+	        y_d[source_id] = np.where(y==1)[0]
+	        buffer_queues[source_id].put(X)
+	    buffer_queue.put(hash_d)
+	    y_queue.put(y_d)
+	    with condition:
+	        condition.notify_all()

@@ -1,6 +1,8 @@
 from exos.explainer.estimator import dbpca
 from .common import get_outliers
 
+import numpy as np
+import time
 import logging
 logging.basicConfig(format='%(message)s', level=logging.INFO)
 
@@ -33,14 +35,28 @@ def concatenate_buffers(hash_d, n_streams):
             arr = np.vstack((arr, new_point))
     return arr
 
-def run_dbpca_estimator(est_queue, hash_d, n_streams, Q_queue, d, k, y_queue, profiling=False):
+def slice_estimating_matrix(stream_id, all_outliers, all_outliers_est, 
+                            outlier_stream_idx, attributes, n_streams):
+    outlier_index = outlier_stream_idx[stream_id]
+    start_idx = attributes[stream_id]
+    if stream_id < n_streams - 1:
+        end_idx = attributes[stream_id+1]
+        outliers = np.take(all_outliers[:,start_idx:end_idx], outlier_index, axis=0)
+        outliers_est = np.take(all_outliers_est[:,start_idx:end_idx], outlier_index, axis=0)
+    else:
+        outliers = np.take(all_outliers[:,start_idx:], outlier_index, axis=0)
+        outliers_est = np.take(all_outliers_est[:,start_idx:], outlier_index, axis=0)
+    return outliers, outliers_est
+
+def run_dbpca_estimator(exos_condition, est_queues, est_time_queue, buffer_queue, n_streams, Q_queue, d, k, y_queue, attributes):
     """
     Used when dbpca run in multiprocessing setting
     Parameters
     ----------
-    est_queue: Queue()
+    est_queue: list of Queue
         used to return values
-    hash_d: dict
+    buffer_queue: Queue
+        used to get data (stored in a dictionary) from stream_consumer
         buffer for each stream
         Example: two streams: stream 0 (2 features) and 1 (2 features), each has 5 data points 
         {
@@ -57,30 +73,51 @@ def run_dbpca_estimator(est_queue, hash_d, n_streams, Q_queue, d, k, y_queue, pr
         }
     n_streams: int
         number of streams
-    Q_queue: Queue()
+    Q_queue: Queue
         store Q (estimated eigen vectors) 
     d: int
         total number of features (sum of number of attributes from each stream)
     k: int
-    y_queue: Queue()
+    y_queue: Queue
         store information about detected outlier on current window
-    profiling: boolean
-        default value: False
+    attributes: tuple
+        list of the start index for each stream's attributes
+        example: 
+        Suppose there are 3 streams: S1, S2, and S3. 
+        They have 3, 2, and 3 attributes respectively.
+        Then attributes = (0, 2, 4)
     """
-    if profiling:
-        start = time.perf_counter() #start measuring estimation function
-    arr = concatenate_buffers(hash_d, n_streams)
-    W = arr.T # d x m 
-    Q = Q_queue.get() # d x k 
-    Q = dbpca.update_Q(W,d,k,Q) # d x k 
-    
-    outliers, y_d, new_y_d = get_outliers(arr, y_queue, n_streams) ## numpy array of n_outliers x d
-    Y = outliers.dot(Q) # m x k
-    outliers_est = Y.dot(Q.T) # m x d
-    
-    Q_queue.put(Q)
-    
-    end = time.perf_counter() #end measuring estimation function
-    
-    logging.info(f"Running DBPCA estimation function in {end-start} second")
-    est_queue.put((outliers, outliers_est, new_y_d, y_d, end-start))
+    while True:
+        exos_condition.acquire()
+        try:
+            print('Run estimator')
+            start = time.perf_counter()
+            hash_d = buffer_queue.get()
+            if hash_d is None:
+                return
+            else:
+                arr = concatenate_buffers(hash_d, n_streams)
+                W = arr.T # d x m 
+                Q = Q_queue.get() # d x k 
+                Q = dbpca.update_Q(W,d,k,Q) # d x k 
+                
+                all_outliers, y_d, new_y_d = get_outliers(arr, y_queue, n_streams) ## numpy array of n_outliers x d
+                Y = all_outliers.dot(Q) # m x k
+                all_outliers_est = Y.dot(Q.T) # m x d
+                
+                Q_queue.put(Q)
+
+                for stream_id in range(n_streams):
+                    outliers, outliers_est = slice_estimating_matrix(stream_id,
+                                                                     all_outliers,
+                                                                     all_outliers_est,
+                                                                     new_y_d,
+                                                                     attributes,
+                                                                     n_streams
+                                                                     )
+                    est_queues[stream_id].put((outliers, outliers_est, new_y_d))
+                end = time.perf_counter() #end measuring estimation function
+                est_time_queue.put(end - start)
+                exos_condition.notify()
+        finally:
+            exos_condition.release()
