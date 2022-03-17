@@ -88,14 +88,13 @@ def run_dbpca_estimator(exos_condition, est_queues, est_time_queue, buffer_queue
         Then attributes = (0, 2, 4)
     """
     while True:
-        exos_condition.acquire()
+        start = time.perf_counter()
         try:
-            print('Run estimator')
-            start = time.perf_counter()
             hash_d = buffer_queue.get()
             if hash_d is None:
                 return
             else:
+                print('Run estimator\n')
                 arr = concatenate_buffers(hash_d, n_streams)
                 W = arr.T # d x m 
                 Q = Q_queue.get() # d x k 
@@ -118,6 +117,8 @@ def run_dbpca_estimator(exos_condition, est_queues, est_time_queue, buffer_queue
                     est_queues[stream_id].put((outliers, outliers_est, new_y_d))
                 end = time.perf_counter() #end measuring estimation function
                 est_time_queue.put(end - start)
-                exos_condition.notify()
-        finally:
-            exos_condition.release()
+                with exos_condition:
+                    exos_condition.wait()
+        except buffer_queue.empty():
+            pass
+       

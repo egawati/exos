@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from skmultiflow.data import TemporalDataStream
-from multiprocessing import Process, Queue, Condition
+from multiprocessing import Process, Queue, Condition, Manager
 
 from exos.explainer.estimator import dbpca
 
@@ -95,17 +95,22 @@ def run_exos_simulator(sources, d, k, attributes, feature_names,
     logging.info("Start exos simulator")
     n_streams = len(sources)
 
+    ### initialize manager
+    manager = Manager()
+
     ### Initialize queues
     logging.info("Initializing Queues")
-    queues = [Queue()] * n_streams
+    queues = [Queue() for _ in range(n_streams)]
+    
     buffer_queue = Queue()
-    buffer_queues = [Queue()] * n_streams
+    buffer_queues = [Queue() for _ in range(n_streams)]
     y_queue = Queue()
-    est_queues = [Queue()] * n_streams
+    
+    est_queues = [Queue() for _ in range(n_streams)]
     est_time_queue = Queue()
-    neigh_queues = [Queue()] * n_streams
+    neigh_queues = [Queue() for _ in range(n_streams)]
     Q_queue = Queue()
-    exos_queues = [Queue()] * n_streams
+    exos_queues = [Queue() for _ in range(n_streams)]
 
 
     Q = dbpca.initialize_Q(d,k)
@@ -142,8 +147,12 @@ def run_exos_simulator(sources, d, k, attributes, feature_names,
         if n_init_data:
             init_data = n_init_data[stream_id]
         neighbor = Process(target=run_temporal_neighbors,
-                           args=(exos_condition, neigh_queues, buffer_queues, 
-                                 stream_id, ncluster, init_data),
+                           args=(exos_condition, 
+                                 neigh_queues[stream_id], 
+                                 buffer_queues[stream_id], 
+                                 stream_id,
+                                 ncluster, 
+                                 init_data),
                            daemon=True)
         neighbors.append(neighbor)
 
@@ -153,9 +162,10 @@ def run_exos_simulator(sources, d, k, attributes, feature_names,
     explanations = list()
     for stream_id in range(n_streams):
         explanation = Process(target=run_outlying_attributes,
-                              args=(exos_condition, est_queues, neigh_queues, 
-                                    exos_queues, stream_id, attributes, 
-                                    feature_names, round_flag, multiplier),
+                              args=(exos_condition, est_queues[stream_id], 
+                                    neigh_queues[stream_id], exos_queues[stream_id], 
+                                    stream_id, attributes, feature_names, 
+                                    round_flag, multiplier),
                               daemon=True)
         explanations.append(explanation)
     for explanation in explanations:
