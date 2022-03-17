@@ -119,9 +119,7 @@ def find_outlying_attributes(outlier_point, est_outlier, inlier_centroids,
         whether to round each generated sampling
     """
     inlier_class = generate_inlier_class(est_outlier, inlier_centroids, d, round_flag, multiplier)
-    #logging.info(f'inlier class {inlier_class}')
     outlier_class = generate_outlier_class(est_outlier, outlier_point, d, round_flag, multiplier)
-    #logging.info(f'outlier class {outlier_class}')
     classifier = run_svc(outlier_class, inlier_class)
     feature_scores = compute_simple_feature_contribution(d, (classifier,))
     return map_feature_scores(feature_names, feature_scores)
