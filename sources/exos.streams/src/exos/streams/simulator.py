@@ -1,7 +1,9 @@
 import numpy as np
 import pandas as pd
 from skmultiflow.data import TemporalDataStream
-from multiprocessing import Process, Queue, Condition, Manager
+from multiprocessing import Process, Queue, Condition, Value
+
+from queue import Queue as BQueue
 
 from exos.explainer.estimator import dbpca
 
@@ -16,31 +18,40 @@ import logging
 logging.basicConfig(format='%(message)s', level=logging.INFO)
 
 
-def join_processes(n_streams, producers, consumer, estimator, neighbors, explanations,
+def join_processes(n_streams, producers, consumer, estimator_p, neighbors, explanations,
                    queues, buffer_queue, buffer_queues, est_queues, est_time_queue,
-                   neigh_queues, exos_queues, y_queue, Q_queue):
+                   neigh_queues, exos_queues, y_queue, Q_queue, value):
     for stream_id in range(n_streams):
         producers[stream_id].join()
-        queues[stream_id].put(None)
+        #queues[stream_id].put(None) 
+        print(f'produser at main {stream_id} done')
     consumer.join()
+    print('consumer at main done')
     buffer_queue.put(None)
     y_queue.put(None)
-    
-    estimator.join()
-    est_time_queue.put(None)
-    Q_queue.put(None)
+
     
     for stream_id in range(n_streams):
         buffer_queues[stream_id].put(None)
         neighbors[stream_id].join()
+        print(f'temporal neighbor at main {stream_id} done')
         neigh_queues[stream_id].put(None)
         
         est_queues[stream_id].put(None)
         
         explanations[stream_id].join()
+        print(f'explanation at main {stream_id} done')
         exos_queues[stream_id].put(None)
 
-def terminate_processes(n_streams, producers, consumer, estimator, neighbors, explanations,
+    print(f'value is {value.value}')
+    est_time_queue.put(None)
+    Q_queue.put(None)
+    while estimator_p.is_alive():
+        estimator_p.join(1)
+    print('estimator at main done')
+    
+
+def terminate_processes(n_streams, producers, consumer, estimator_p, neighbors, explanations,
                         queues, buffer_queue, buffer_queues, est_queues, est_time_queue,
                         neigh_queues, exos_queues, y_queue, Q_queue):
     for stream_id in range(n_streams):
@@ -51,7 +62,7 @@ def terminate_processes(n_streams, producers, consumer, estimator, neighbors, ex
     buffer_queue.close()
     y_queue.close()
     
-    estimator.terminate()
+    estimator_p.terminate()
     est_time_queue.close()
     Q_queue.close()
     
@@ -69,6 +80,8 @@ def run_exos_simulator(sources, d, k, attributes, feature_names,
                        window_size, n_clusters = (), n_init_data = (), 
                        multiplier = 10, round_flag=True):
     """
+    Parameters
+    ----------
     sources : list
         list of the TemporalDataStream objects
     d : int
@@ -90,13 +103,40 @@ def run_exos_simulator(sources, d, k, attributes, feature_names,
         list of numpy array   
     multiplier : int
         the number of data points to sample when creating inlier/outlier class
+
+    Return
+    a dictionary results
+
+    results.keys()
+    dict_keys(['output', 'simulator_time'])
+        results['output'].keys()
+        dict_keys(['window_0', 'window_1'])
+            results['output']['window_0'].keys()
+            dict_keys([0, 1, 2, 'est_time'])
+                results['output']['window_0'][0].keys()
+                dict_keys(['out_attrs', 'outlier_indices', 'temporal_neighbor_time', 'out_attrs_time'])
+                    results['output']['window_0'][0]['out_attrs']
+                        list of dictionary of feature names and their corresponding contribution value
+                        the length of the list is equal to the number of outliers in the window ['window_0'] 
+                        of the particular stream [0]
+                    
+                    results['output']['window_0'][0]['outlier_indices'].keys()
+                    dict_keys([0, 1, 2]) --> we don't need info of other streams but 0
+                    
+                    results['output']['window_0'][0]['temporal_neighbor_time']
+                    real number, running time required by temporal neighbor process at stream 0
+                    
+                    results['output']['window_0'][2]['out_attrs_time']
+                    real number, running time required by outlying attributes at stream 0
+        results['simulator_time']
+        real number, running time required to run the entire windows
     """
     start = time.perf_counter()
     logging.info("Start exos simulator")
     n_streams = len(sources)
 
-    ### initialize manager
-    manager = Manager()
+    ### initialize Value
+    value = Value('i',n_streams)
 
     ### Initialize queues
     logging.info("Initializing Queues")
@@ -119,10 +159,11 @@ def run_exos_simulator(sources, d, k, attributes, feature_names,
     ### Initialize conditions
     condition = Condition()
     exos_condition = Condition()
+    neigh_condition = Condition()
 
     ### Start processes
     producers = [Process(target=stream_producer, 
-                         args=(condition, queues, sources[i], i, window_size), 
+                         args=(condition, queues[i], sources[i], i, window_size), 
                          daemon=True) for i in range(n_streams)]
     for p in producers:
         p.start()
@@ -132,11 +173,12 @@ def run_exos_simulator(sources, d, k, attributes, feature_names,
                        daemon=True)
     consumer.start()
 
-    estimator = Process(target=run_dbpca_estimator,
-                        args=(exos_condition, est_queues, est_time_queue, buffer_queue, 
+    estimator_p = Process(target=run_dbpca_estimator,
+                        args=(value, neigh_condition, exos_condition, 
+                              est_queues, est_time_queue, buffer_queue, 
                               n_streams, Q_queue, d, k, y_queue, attributes),
                         daemon=True)
-    estimator.start()
+    estimator_p.start()
 
     neighbors = list()
     for stream_id in range(n_streams):
@@ -147,7 +189,7 @@ def run_exos_simulator(sources, d, k, attributes, feature_names,
         if n_init_data:
             init_data = n_init_data[stream_id]
         neighbor = Process(target=run_temporal_neighbors,
-                           args=(exos_condition, 
+                           args=(neigh_condition, 
                                  neigh_queues[stream_id], 
                                  buffer_queues[stream_id], 
                                  stream_id,
@@ -162,7 +204,7 @@ def run_exos_simulator(sources, d, k, attributes, feature_names,
     explanations = list()
     for stream_id in range(n_streams):
         explanation = Process(target=run_outlying_attributes,
-                              args=(exos_condition, est_queues[stream_id], 
+                              args=(value, exos_condition, est_queues[stream_id], 
                                     neigh_queues[stream_id], exos_queues[stream_id], 
                                     stream_id, attributes, feature_names, 
                                     round_flag, multiplier),
@@ -171,27 +213,29 @@ def run_exos_simulator(sources, d, k, attributes, feature_names,
     for explanation in explanations:
         explanation.start()
 
-    join_processes(n_streams, producers, consumer, estimator, neighbors, explanations,
+    join_processes(n_streams, producers, consumer, estimator_p, neighbors, explanations,
                    queues, buffer_queue, buffer_queues, est_queues, est_time_queue,
-                   neigh_queues, exos_queues, y_queue, Q_queue)
+                   neigh_queues, exos_queues, y_queue, Q_queue, value)
 
-    results = list()
+    result = {}
+    counter = 0
     while True:
         outputs = {}
         for stream_id in range(n_streams):
             output = exos_queues[stream_id].get()
             outputs[stream_id] = output
         est_time = est_time_queue.get()
-        logging.info(f'Result is {est_time}')
         if est_time is None:
             break
-        results.append((outputs, est_time))
+        outputs['est_time'] = est_time
+        result[f'window_{counter}'] = outputs
+        counter += 1
 
     logging.info('Terminating processes')
-    terminate_processes(n_streams, producers, consumer, estimator, neighbors, explanations,
+    terminate_processes(n_streams, producers, consumer, estimator_p, neighbors, explanations,
                         queues, buffer_queue, buffer_queues, est_queues, est_time_queue,
                         neigh_queues, exos_queues, y_queue, Q_queue)
-    
+
     end = time.perf_counter()
     logging.info('Done')
-    return (results, end - start)
+    return {'output' : result, 'simulator_time' : end-start}

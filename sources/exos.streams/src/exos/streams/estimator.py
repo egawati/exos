@@ -1,9 +1,13 @@
 from exos.explainer.estimator import dbpca
 from .common import get_outliers
 
+import os
 import numpy as np
 import time
 import logging
+import sys
+import setproctitle
+
 logging.basicConfig(format='%(message)s', level=logging.INFO)
 
 
@@ -48,7 +52,7 @@ def slice_estimating_matrix(stream_id, all_outliers, all_outliers_est,
         outliers_est = np.take(all_outliers_est[:,start_idx:], outlier_index, axis=0)
     return outliers, outliers_est
 
-def run_dbpca_estimator(exos_condition, est_queues, est_time_queue, buffer_queue, n_streams, Q_queue, d, k, y_queue, attributes):
+def run_dbpca_estimator(value, neigh_condition, exos_condition, est_queues, est_time_queue, buffer_queue, n_streams, Q_queue, d, k, y_queue, attributes):
     """
     Used when dbpca run in multiprocessing setting
     Parameters
@@ -87,12 +91,21 @@ def run_dbpca_estimator(exos_condition, est_queues, est_time_queue, buffer_queue
         They have 3, 2, and 3 attributes respectively.
         Then attributes = (0, 2, 4)
     """
+    pid = os.getpid()
+    setproctitle.setproctitle("Exos.Estimator")
     while True:
         start = time.perf_counter()
         try:
             hash_d = buffer_queue.get()
+            y_d = y_queue.get()
             if hash_d is None:
-                return
+                for stream_id in range(n_streams):
+                    est_queues[stream_id].put(None)
+                est_time_queue.put(None)
+                Q_queue.put(None)
+                Q_queue.close()
+                print(f"estimator done\n")
+                break
             else:
                 print('Run estimator\n')
                 arr = concatenate_buffers(hash_d, n_streams)
@@ -100,10 +113,9 @@ def run_dbpca_estimator(exos_condition, est_queues, est_time_queue, buffer_queue
                 Q = Q_queue.get() # d x k 
                 Q = dbpca.update_Q(W,d,k,Q) # d x k 
                 
-                all_outliers, y_d, new_y_d = get_outliers(arr, y_queue, n_streams) ## numpy array of n_outliers x d
+                all_outliers, new_y_d = get_outliers(arr, y_d, n_streams) ## numpy array of n_outliers x d
                 Y = all_outliers.dot(Q) # m x k
                 all_outliers_est = Y.dot(Q.T) # m x d
-                
                 Q_queue.put(Q)
 
                 for stream_id in range(n_streams):
@@ -118,7 +130,15 @@ def run_dbpca_estimator(exos_condition, est_queues, est_time_queue, buffer_queue
                 end = time.perf_counter() #end measuring estimation function
                 est_time_queue.put(end - start)
                 with exos_condition:
-                    exos_condition.wait()
-        except buffer_queue.empty():
+                    exos_condition.wait_for(lambda : value.value==0)
+                with value.get_lock():
+                    value.value = n_streams
+                print("Ready to waking up temporal neighbor\n")
+                with neigh_condition:
+                    neigh_condition.notify_all()
+                print("estimator --> temporal neighbor woken\n")
+        except buffer_queue.Empty:
             pass
+    print(f'estimator {pid} exit\n')
+    sys.stdout.flush()
        

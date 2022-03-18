@@ -1,7 +1,6 @@
 import numpy as np
 
-def get_outliers(arr, y_queue, n_streams):
-    y_d = y_queue.get()
+def get_outliers(arr, y_d, n_streams):
     new_y_d = {}
     new_y_d[0] = list()
     outlier_index = set(y_d[0])    
@@ -17,4 +16,4 @@ def get_outliers(arr, y_queue, n_streams):
                 new_y_d[i].append(outlier_index.index(idx))
     
     outliers= np.take(arr, outlier_index, axis=0)
-    return outliers, y_d, new_y_d 
+    return outliers, new_y_d 
