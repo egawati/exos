@@ -3,6 +3,9 @@ import numpy as np
 from sklearn.svm import LinearSVC
 from sklearn.neighbors import NearestNeighbors
 
+from sklearn.utils._testing import ignore_warnings
+from sklearn.exceptions import ConvergenceWarning
+
 import logging
 logging.basicConfig(format='%(message)s', level=logging.INFO)
 
@@ -88,7 +91,7 @@ def map_feature_scores(feature_names, feature_scores):
     result = {k: v for k, v in zip(feature_names, feature_scores)}
     return result
 
-
+@ignore_warnings(category=ConvergenceWarning)
 def run_svc(outlier_class, inlier_class, 
             regularization = 'l1', 
             regularization_param = 1, 

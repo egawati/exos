@@ -104,6 +104,8 @@ def run_dbpca_estimator(value, neigh_condition, exos_condition, est_queues, est_
                 est_time_queue.put(None)
                 Q_queue.put(None)
                 Q_queue.close()
+                buffer_queue.close()
+                y_queue.close()
                 print(f"estimator done\n")
                 break
             else:
@@ -140,5 +142,6 @@ def run_dbpca_estimator(value, neigh_condition, exos_condition, est_queues, est_
         except buffer_queue.Empty:
             pass
     print(f'estimator {pid} exit\n')
+    value.value = -1 ### need to set value.value == -1 to make sure things work 
     sys.stdout.flush()
        

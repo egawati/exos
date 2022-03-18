@@ -103,6 +103,7 @@ def stream_consumer(condition, queues, buffer_queue, buffer_queues, y_queue):
 	        	for bqueue in buffer_queues:
 	        		bqueue.put(None)
 	        	buffer_queue.put(None)
+	        	y_queue.put(None)
 	        	with condition:
 	        		condition.notify_all()
 	        	exit = True

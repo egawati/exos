@@ -43,11 +43,8 @@ def join_processes(n_streams, producers, consumer, estimator_p, neighbors, expla
         print(f'explanation at main {stream_id} done')
         exos_queues[stream_id].put(None)
 
-    print(f'value is {value.value}')
-    est_time_queue.put(None)
-    Q_queue.put(None)
-    while estimator_p.is_alive():
-        estimator_p.join(1)
+    if value.value == -1:
+        estimator_p.terminate()
     print('estimator at main done')
     
 
@@ -62,7 +59,7 @@ def terminate_processes(n_streams, producers, consumer, estimator_p, neighbors, 
     buffer_queue.close()
     y_queue.close()
     
-    estimator_p.terminate()
+    #estimator_p.terminate()
     est_time_queue.close()
     Q_queue.close()
     
