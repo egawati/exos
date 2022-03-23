@@ -103,9 +103,6 @@ def run_dbpca_estimator(value, neigh_condition, exos_condition, est_queues, est_
                     est_queues[stream_id].put(None)
                 est_time_queue.put(None)
                 Q_queue.put(None)
-                Q_queue.close()
-                buffer_queue.close()
-                y_queue.close()
                 print(f"estimator done\n")
                 break
             else:

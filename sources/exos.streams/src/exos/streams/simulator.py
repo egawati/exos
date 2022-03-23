@@ -3,7 +3,7 @@ import pandas as pd
 from skmultiflow.data import TemporalDataStream
 from multiprocessing import Process, Queue, Condition, Value
 
-from queue import Queue as BQueue
+
 
 from exos.explainer.estimator import dbpca
 
@@ -18,34 +18,26 @@ import logging
 logging.basicConfig(format='%(message)s', level=logging.INFO)
 
 
-def join_processes(n_streams, producers, consumer, estimator_p, neighbors, explanations,
-                   queues, buffer_queue, buffer_queues, est_queues, est_time_queue,
-                   neigh_queues, exos_queues, y_queue, Q_queue, value):
+def join_processes(n_streams, producers, consumer, estimator_p, neighbors, explanations, value):
     for stream_id in range(n_streams):
         producers[stream_id].join()
-        #queues[stream_id].put(None) 
-        print(f'produser at main {stream_id} done')
+        print(f'produser at main {stream_id} done\n')
+    
     consumer.join()
-    print('consumer at main done')
-    buffer_queue.put(None)
-    y_queue.put(None)
-
+    print('consumer at main done\n')
     
     for stream_id in range(n_streams):
-        buffer_queues[stream_id].put(None)
         neighbors[stream_id].join()
-        print(f'temporal neighbor at main {stream_id} done')
-        neigh_queues[stream_id].put(None)
+        print(f'temporal neighbor at main {stream_id} done\n')
         
-        est_queues[stream_id].put(None)
+    estimator_p.join()
+    print('estimator at main done\n')
         
+    for stream_id in range(n_streams):
         explanations[stream_id].join()
-        print(f'explanation at main {stream_id} done')
-        exos_queues[stream_id].put(None)
+        print(f'OA at main {stream_id} done\n')
 
-    if value.value == -1:
-        estimator_p.terminate()
-    print('estimator at main done')
+    print(f'value is {value.value}\n')
     
 
 def terminate_processes(n_streams, producers, consumer, estimator_p, neighbors, explanations,
@@ -210,9 +202,7 @@ def run_exos_simulator(sources, d, k, attributes, feature_names,
     for explanation in explanations:
         explanation.start()
 
-    join_processes(n_streams, producers, consumer, estimator_p, neighbors, explanations,
-                   queues, buffer_queue, buffer_queues, est_queues, est_time_queue,
-                   neigh_queues, exos_queues, y_queue, Q_queue, value)
+    join_processes(n_streams, producers, consumer, estimator_p, neighbors, explanations, value)
 
     result = {}
     counter = 0
