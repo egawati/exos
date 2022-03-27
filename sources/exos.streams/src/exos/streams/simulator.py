@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from skmultiflow.data import TemporalDataStream
-from multiprocessing import Process, Queue, Condition, Value
+from multiprocessing import Process, Condition, Value, Manager
 
 
 
@@ -25,13 +25,16 @@ def join_processes(n_streams, producers, consumer, estimator_p, neighbors, expla
     
     consumer.join()
     print('consumer at main done\n')
+    print(f'value is {value.value}\n')
     
     for stream_id in range(n_streams):
         neighbors[stream_id].join()
         print(f'temporal neighbor at main {stream_id} done\n')
+    print(f'value is {value.value}\n')
         
     estimator_p.join()
     print('estimator at main done\n')
+    print(f'value is {value.value}\n')
         
     for stream_id in range(n_streams):
         explanations[stream_id].join()
@@ -45,25 +48,25 @@ def terminate_processes(n_streams, producers, consumer, estimator_p, neighbors, 
                         neigh_queues, exos_queues, y_queue, Q_queue):
     for stream_id in range(n_streams):
         producers[stream_id].terminate()
-        queues[stream_id].close()
+        queues[stream_id]._close()
     
     consumer.terminate()
-    buffer_queue.close()
-    y_queue.close()
+    buffer_queue._close()
+    y_queue._close()
     
     #estimator_p.terminate()
-    est_time_queue.close()
-    Q_queue.close()
+    est_time_queue._close()
+    Q_queue._close()
     
     for stream_id in range(n_streams):
-        buffer_queues[stream_id].close()
+        buffer_queues[stream_id]._close()
         neighbors[stream_id].terminate()
-        neigh_queues[stream_id].close()
+        neigh_queues[stream_id]._close()
         
-        est_queues[stream_id].close()
+        est_queues[stream_id]._close()
         
         explanations[stream_id].terminate()
-        exos_queues[stream_id].close()
+        exos_queues[stream_id]._close()
 
 def run_exos_simulator(sources, d, k, attributes, feature_names, 
                        window_size, n_clusters = (), n_init_data = (), 
@@ -129,17 +132,18 @@ def run_exos_simulator(sources, d, k, attributes, feature_names,
 
     ### Initialize queues
     logging.info("Initializing Queues")
-    queues = [Queue() for _ in range(n_streams)]
+    manager = Manager()
+    queues = [manager.Queue() for _ in range(n_streams)]
     
-    buffer_queue = Queue()
-    buffer_queues = [Queue() for _ in range(n_streams)]
-    y_queue = Queue()
+    buffer_queue = manager.Queue()
+    buffer_queues = [manager.Queue() for _ in range(n_streams)]
+    y_queue = manager.Queue()
     
-    est_queues = [Queue() for _ in range(n_streams)]
-    est_time_queue = Queue()
-    neigh_queues = [Queue() for _ in range(n_streams)]
-    Q_queue = Queue()
-    exos_queues = [Queue() for _ in range(n_streams)]
+    est_queues = [manager.Queue() for _ in range(n_streams)]
+    est_time_queue = manager.Queue()
+    neigh_queues = [manager.Queue() for _ in range(n_streams)]
+    Q_queue = manager.Queue()
+    exos_queues = [manager.Queue() for _ in range(n_streams)]
 
 
     Q = dbpca.initialize_Q(d,k)

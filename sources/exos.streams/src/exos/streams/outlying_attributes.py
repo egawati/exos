@@ -53,7 +53,7 @@ def run_outlying_attributes(value, exos_condition, est_queue, neigh_queue,
                     with value.get_lock():
                         value.value -= 1
                     exos_condition.notify()
-        except neigh_queue.Empty:
-            pass
+        except Exception as e:
+            print(f'Exception at OA {stream_id} : {e}')
     print(f'OA {stream_id} / {pid} exit\n')
     sys.stdout.flush()
