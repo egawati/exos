@@ -11,6 +11,7 @@ def run_temporal_neighbors(neigh_condition, neigh_queue, bqueue, stream_id, nclu
     while True:
         start = time.perf_counter()
         try:
+            print(f'Run temporal neighbor {stream_id}\n')
             buffer = bqueue.get()
             if buffer is None:
                 print(f'Temporal neighbor {stream_id} DONE')
