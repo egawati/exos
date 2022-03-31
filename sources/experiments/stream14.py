@@ -1,0 +1,37 @@
+import numpy as np
+import pandas as pd
+from skmultiflow.data import TemporalDataStream
+
+from exos.streams import run_exos_simulator
+
+if __name__ == '__main__':
+    profiling = True
+    round_flag = False
+    multiplier = 10
+    
+    n_streams = 100
+    size = 10000
+    window_size = 500
+    n_attrs = 5
+    sources = list()
+    attributes = list()
+    feature_names = {}
+    counter = 0
+    for i in range(n_streams):
+        X = np.random.uniform(low=5, high=20, size=(size,n_attrs))
+        y = np.random.randint(2, size=size)
+        ts = TemporalDataStream(X, y)
+        sources.append(ts)
+        feature_names[i] = [f'A{j}' for j in range(n_attrs)]
+        attributes.append(counter)
+        counter = counter + X.shape[1]
+    d = n_streams * n_attrs
+    k = d
+    print(f'attributes {attributes}')
+    print(f'source len {len(sources)}')
+
+    results = run_exos_simulator(sources, d, k, attributes, feature_names, 
+                                 window_size, n_clusters = (), n_init_data = (), 
+                                 multiplier = 10, round_flag=True)
+    exit()
+
