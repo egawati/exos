@@ -2,8 +2,6 @@ import numpy as np
 import pandas as pd
 from skmultiflow.data import TemporalDataStream
 
-from multiprocessing import set_start_method
-set_start_method("spawn")
 
 from multiprocessing import Process, Condition, Value, Manager
 

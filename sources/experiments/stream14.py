@@ -2,15 +2,19 @@ import numpy as np
 import pandas as pd
 from skmultiflow.data import TemporalDataStream
 
+from multiprocessing import set_start_method
+
 from exos.streams import run_exos_simulator
 
 if __name__ == '__main__':
+    set_start_method("spawn")
+
     profiling = True
     round_flag = False
     multiplier = 10
     
-    n_streams = 100
-    size = 10000
+    n_streams = 32
+    size = 1000
     window_size = 500
     n_attrs = 5
     sources = list()
