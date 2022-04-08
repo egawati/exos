@@ -13,7 +13,7 @@ if __name__ == '__main__':
     round_flag = False
     multiplier = 10
     
-    n_streams = 32
+    n_streams = 2
     size = 1000
     window_size = 500
     n_attrs = 5
@@ -37,5 +37,4 @@ if __name__ == '__main__':
     results = run_exos_simulator(sources, d, k, attributes, feature_names, 
                                  window_size, n_clusters = (), n_init_data = (), 
                                  multiplier = 10, round_flag=True)
-    exit()
 
