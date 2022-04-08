@@ -5,16 +5,19 @@ import os
 import sys
 import setproctitle
 
+import logging
+logging.basicConfig(format='%(message)s', level=logging.INFO)
+
 def run_temporal_neighbors(neigh_condition, neigh_queue, bqueue, stream_id, ncluster, init_data):
     pid = os.getpid()
     setproctitle.setproctitle(f"Exos.TemporalNeighbor{stream_id}")
     while True:
         start = time.perf_counter()
         try:
-            print(f'Run temporal neighbor {stream_id}\n')
+            logging.info(f'Run temporal neighbor {stream_id}\n')
             buffer = bqueue.get()
             if buffer is None:
-                print(f'Temporal neighbor {stream_id} DONE')
+                logging.info(f'Temporal neighbor {stream_id} DONE')
                 neigh_queue.put(None)
                 break
             else:
@@ -25,9 +28,10 @@ def run_temporal_neighbors(neigh_condition, neigh_queue, bqueue, stream_id, nclu
                 neigh_queue.put((inlier_centroids, end-start))
                 with neigh_condition:
                     neigh_condition.wait()
-                print(f'Temporal neighbor {stream_id} woke')
-        except bqueue.Empty:
-            pass
-    print(f'Temporal neighbor {stream_id} / {pid} exit')
+                logging.info(f'Temporal neighbor {stream_id} woke')
+        except Exception e:
+            logging.error(f'Exception at temporal neighbor {stream_id} : {e}')
+            
+    logging.info(f'Temporal neighbor {stream_id} / {pid} exit')
     sys.stdout.flush()
         

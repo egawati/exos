@@ -4,10 +4,10 @@ from .common import get_outliers
 import os
 import numpy as np
 import time
-import logging
 import sys
 import setproctitle
 
+import logging
 logging.basicConfig(format='%(message)s', level=logging.INFO)
 
 
@@ -103,10 +103,10 @@ def run_dbpca_estimator(value, neigh_condition, exos_condition, est_queues, est_
                     est_queues[stream_id].put(None)
                 est_time_queue.put(None)
                 Q_queue.put(None)
-                print(f"estimator done\n")
+                logging.info(f"estimator done\n")
                 break
             else:
-                print('Run estimator\n')
+                logging.info('Run estimator\n')
                 arr = concatenate_buffers(hash_d, n_streams)
                 W = arr.T # d x m 
                 Q = Q_queue.get() # d x k 
@@ -132,13 +132,13 @@ def run_dbpca_estimator(value, neigh_condition, exos_condition, est_queues, est_
                     exos_condition.wait_for(lambda : value.value==0)
                 with value.get_lock():
                     value.value = n_streams
-                print("Ready to waking up temporal neighbor\n")
+                logging.info("Ready to waking up temporal neighbor\n")
                 with neigh_condition:
                     neigh_condition.notify_all()
-                print("estimator --> temporal neighbor woken\n")
+                logging.info("estimator --> temporal neighbor woken\n")
         except buffer_queue.Empty:
             pass
-    print(f'estimator {pid} exit\n')
+    logging.info(f'estimator {pid} exit\n')
     value.value = -1 ### need to set value.value == -1 to make sure things work 
     sys.stdout.flush()
        

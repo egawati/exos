@@ -21,26 +21,26 @@ logging.basicConfig(format='%(message)s', level=logging.INFO)
 def join_processes(n_streams, producers, consumer, estimator_p, neighbors, explanations, value):
     for stream_id in range(n_streams):
         producers[stream_id].join()
-        print(f'produser at main {stream_id} done\n')
+        logging.info(f'produser at main {stream_id} done\n')
     
     consumer.join()
-    print('consumer at main done\n')
-    print(f'value is {value.value}\n')
+    logging.info('consumer at main done\n')
+    logging.info(f'value is {value.value}\n')
     
     for stream_id in range(n_streams):
         neighbors[stream_id].join()
-        print(f'temporal neighbor at main {stream_id} done\n')
-    print(f'value is {value.value}\n')
+        logging.info(f'temporal neighbor at main {stream_id} done\n')
+    logging.info(f'value is {value.value}\n')
         
     estimator_p.join()
-    print('estimator at main done\n')
-    print(f'value is {value.value}\n')
+    logging.info('estimator at main done\n')
+    logging.info(f'value is {value.value}\n')
         
     for stream_id in range(n_streams):
         explanations[stream_id].join()
-        print(f'OA at main {stream_id} done\n')
+        logging.info(f'OA at main {stream_id} done\n')
 
-    print(f'value is {value.value}\n')
+    logging.info(f'value is {value.value}\n')
     
 
 def terminate_processes(n_streams, producers, consumer, estimator_p, neighbors, explanations,

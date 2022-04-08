@@ -3,6 +3,10 @@ import time
 import os
 import sys
 import setproctitle
+
+import logging
+logging.basicConfig(format='%(message)s', level=logging.INFO)
+
 def run_outlying_attributes(value, exos_condition, est_queue, neigh_queue, 
                             exos_queue, stream_id, attributes, 
                             feature_names, round_flag=False, multiplier=10):
@@ -15,10 +19,10 @@ def run_outlying_attributes(value, exos_condition, est_queue, neigh_queue,
             neigh_result = neigh_queue.get()
             if estimator_result is None or neigh_result is None:
                 exos_queue.put(None)
-                print(f"OA {stream_id} DONE\n")
+                logging.info(f"OA {stream_id} DONE\n")
                 break
             else:
-                print(f'Generating outlying attributes at {stream_id}\n')
+                logging.info(f'Generating outlying attributes at {stream_id}\n')
                 outliers, outliers_est, new_y_d = estimator_result
                 inlier_centroids, neigh_run_time = neigh_result
                 
@@ -54,6 +58,6 @@ def run_outlying_attributes(value, exos_condition, est_queue, neigh_queue,
                         value.value -= 1
                     exos_condition.notify()
         except Exception as e:
-            print(f'Exception at OA {stream_id} : {e}')
-    print(f'OA {stream_id} / {pid} exit\n')
+            logging.error(f'Exception at OA {stream_id} : {e}')
+    logging.info(f'OA {stream_id} / {pid} exit\n')
     sys.stdout.flush()

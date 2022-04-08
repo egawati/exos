@@ -77,7 +77,7 @@ def stream_producer(condition, queue, source, source_id, window_size):
             queue.put((X, y, source_id))
             with condition:
                 condition.wait()
-    print(f'producer {source_id} / {os.getpid()} exit')
+    logging.info(f'producer {source_id} / {os.getpid()} exit')
     sys.stdout.flush()
 
 def stream_consumer(condition, queues, buffer_queue, buffer_queues, y_queue):
@@ -120,5 +120,5 @@ def stream_consumer(condition, queues, buffer_queue, buffer_queues, y_queue):
 	    y_queue.put(y_d)
 	    with condition:
 	        condition.notify_all()
-	print(f'customer {os.getpid()} exit')
+	logging.info(f'customer {os.getpid()} exit')
 	sys.stdout.flush()
