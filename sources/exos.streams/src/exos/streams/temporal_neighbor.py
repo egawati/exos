@@ -29,7 +29,7 @@ def run_temporal_neighbors(neigh_condition, neigh_queue, bqueue, stream_id, nclu
                 with neigh_condition:
                     neigh_condition.wait()
                 logging.info(f'Temporal neighbor {stream_id} woke')
-        except Exception e:
+        except Exception as e:
             logging.error(f'Exception at temporal neighbor {stream_id} : {e}')
             
     logging.info(f'Temporal neighbor {stream_id} / {pid} exit')

@@ -6,6 +6,8 @@ from multiprocessing import set_start_method
 
 from exos.streams import run_exos_simulator
 
+import pickle
+
 if __name__ == '__main__':
     set_start_method("spawn")
 
@@ -37,4 +39,8 @@ if __name__ == '__main__':
     results = run_exos_simulator(sources, d, k, attributes, feature_names, 
                                  window_size, n_clusters = (), n_init_data = (), 
                                  multiplier = 10, round_flag=True)
+
+    filename = f'{n_streams}_{size}_{window_size}_{n_attrs}.pkl'
+    exos_file = open(filename, 'ab')
+    pickle.dump(results, exos_file)
 
