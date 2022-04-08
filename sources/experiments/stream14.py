@@ -14,11 +14,12 @@ if __name__ == '__main__':
     profiling = True
     round_flag = False
     multiplier = 10
+    threshold=0.0
     
     n_streams = 2
-    size = 1000
-    window_size = 500
-    n_attrs = 5
+    size = 100
+    window_size = 20
+    n_attrs = 2
     sources = list()
     attributes = list()
     feature_names = {}
@@ -38,7 +39,7 @@ if __name__ == '__main__':
 
     results = run_exos_simulator(sources, d, k, attributes, feature_names, 
                                  window_size, n_clusters = (), n_init_data = (), 
-                                 multiplier = 10, round_flag=True)
+                                 multiplier = multiplier, round_flag=round_flag, threshold=threshold)
 
     filename = f'{n_streams}_{size}_{window_size}_{n_attrs}.pkl'
     exos_file = open(filename, 'ab')
