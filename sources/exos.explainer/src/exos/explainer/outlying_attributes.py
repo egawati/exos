@@ -87,8 +87,16 @@ def compute_simple_feature_contribution(n_features, classifiers):
     return feature_scores
 
 
-def map_feature_scores(feature_names, feature_scores):
+def compute_attribute_contribution(n_features, classifier):
+    abs_weights = np.abs(classifier.coef_[0])
+    attr_contributions = abs_weights/np.sum(abs_weights)
+    return attr_contributions
+
+
+def map_feature_scores(feature_names, feature_scores, threshold=0.0):
     result = {k: v for k, v in zip(feature_names, feature_scores)}
+    result = dict((k, v) for k, v in result.items() if v > threshold)
+    #result = dict(sorted(result.items(), key=lambda result: result[1], reverse=True))
     return result
 
 @ignore_warnings(category=ConvergenceWarning)
@@ -108,7 +116,10 @@ def run_svc(outlier_class, inlier_class,
     return clf
 
 def find_outlying_attributes(outlier_point, est_outlier, inlier_centroids, 
-                             d, feature_names, round_flag=False, multiplier=10):
+                             d, feature_names, 
+                             round_flag=False, 
+                             multiplier=10,
+                             threshold=0.0):
     """
     Parameters
     ----------
@@ -124,5 +135,7 @@ def find_outlying_attributes(outlier_point, est_outlier, inlier_centroids,
     inlier_class = generate_inlier_class(est_outlier, inlier_centroids, d, round_flag, multiplier)
     outlier_class = generate_outlier_class(est_outlier, outlier_point, d, round_flag, multiplier)
     classifier = run_svc(outlier_class, inlier_class)
-    feature_scores = compute_simple_feature_contribution(d, (classifier,))
-    return map_feature_scores(feature_names, feature_scores)
+    #feature_scores = compute_simple_feature_contribution(d, (classifier,))
+    attr_contributions = compute_attribute_contribution(d, classifier)
+    result = map_feature_scores(feature_names, attr_contributions, threshold)
+    return result

@@ -9,7 +9,7 @@ logging.basicConfig(format='%(message)s', level=logging.INFO)
 
 def run_outlying_attributes(value, exos_condition, est_queue, neigh_queue, 
                             exos_queue, stream_id, attributes, 
-                            feature_names, round_flag=False, multiplier=10):
+                            feature_names, round_flag=False, multiplier=10, threshold=0.0):
     pid = os.getpid()
     setproctitle.setproctitle(f"Exos.OA{stream_id}")
     while True:
@@ -44,9 +44,10 @@ def run_outlying_attributes(value, exos_condition, est_queue, neigh_queue,
                                                                outliers_est[i,:],
                                                                inlier_centroids, 
                                                                d, 
-                                                               feature_names, 
+                                                               feature_names[stream_id], 
                                                                round_flag, 
-                                                               multiplier)
+                                                               multiplier,
+                                                               threshold)
                     outlying_attributes.append(out_attributes)
                 end = time.perf_counter()
                 exos_queue.put({"out_attrs" : outlying_attributes, 

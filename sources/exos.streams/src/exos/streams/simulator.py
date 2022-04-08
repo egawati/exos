@@ -70,7 +70,7 @@ def terminate_processes(n_streams, producers, consumer, estimator_p, neighbors, 
 
 def run_exos_simulator(sources, d, k, attributes, feature_names, 
                        window_size, n_clusters = (), n_init_data = (), 
-                       multiplier = 10, round_flag=True):
+                       multiplier = 10, round_flag=True, threshold=0.0):
     """
     Parameters
     ----------
@@ -200,7 +200,7 @@ def run_exos_simulator(sources, d, k, attributes, feature_names,
                               args=(value, exos_condition, est_queues[stream_id], 
                                     neigh_queues[stream_id], exos_queues[stream_id], 
                                     stream_id, attributes, feature_names, 
-                                    round_flag, multiplier),
+                                    round_flag, multiplier, threshold),
                               daemon=True)
         explanations.append(explanation)
     for explanation in explanations:
