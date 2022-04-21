@@ -56,42 +56,9 @@ def generate_inlier_class(est_outlier, inlier_centers, cluster_counts, d, round_
     inlier_class = np.vstack((gaussian_data, est_outlier))
     return inlier_class, min_dist, cluster_counts[idx]
 
-def compute_feature_contribution(n_features, npoints, classifiers):
-    """
-    Parameters
-    ----------
-    n_features
-        number of features
-    n_points
-        list of number of inlier class used by each classifiers
-    classifiers
-        the classifier models
-    """
-    feature_scores = np.zeros(n_features)
-    for npoint, clf in zip(npoints, classifiers):
-        feature_scores += npoint * np.abs(clf.coef_[0])
-    feature_scores /= float(np.sum(npoints))
-    feature_scores /= np.sum(feature_scores)
-    return feature_scores
-
-
-def compute_simple_feature_contribution(n_features, classifiers):
-    """
-    Parameters
-    ----------
-    n_features
-        number of features
-    classifiers
-        the classifier models
-    """
-    feature_scores = np.zeros(n_features)
-    for clf in classifiers:
-        feature_scores += np.abs(clf.coef_[0])
-    feature_scores = feature_scores / len(classifiers)
-    return feature_scores
-
 
 def compute_attribute_contribution(n_features, classifier):
+    print(f'hyperplane weights are {classifier.coef_[0]}\n')
     abs_weights = np.abs(classifier.coef_[0])
     attr_contributions = abs_weights/np.sum(abs_weights)
     return attr_contributions
@@ -108,14 +75,14 @@ def run_svc(outlier_class, inlier_class,
             regularization = 'l1', 
             regularization_param = 1, 
             intercept_scaling = 1):
-    n_samples = outlier_class.shape[0] + inlier_class.shape[0]
+    X = np.vstack((outlier_class, inlier_class))
+    y = np.hstack((np.ones(outlier_class.shape[0]), np.zeros(inlier_class.shape[0])))
     dual = False
     clf = LinearSVC(penalty=regularization,
                     C=regularization_param,
                     dual=dual,
                     intercept_scaling=intercept_scaling)
-    X = np.vstack((outlier_class, inlier_class))
-    y = np.hstack((np.ones(outlier_class.shape[0]), np.zeros(inlier_class.shape[0])))
+    
     clf.fit(X, y)
     return clf
 

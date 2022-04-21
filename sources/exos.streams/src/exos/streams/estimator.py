@@ -112,7 +112,7 @@ def run_dbpca_estimator(value, neigh_condition, exos_condition, est_queues, est_
                 Q = Q_queue.get() # d x k 
                 Q = dbpca.update_Q(W,d,k,Q) # d x k 
                 
-                all_outliers, new_y_d = get_outliers(arr, y_d, n_streams) ## numpy array of n_outliers x d
+                all_outliers, new_y_d, outlier_indices = get_outliers(arr, y_d, n_streams) ## numpy array of n_outliers x d
                 Y = all_outliers.dot(Q) # m x k
                 all_outliers_est = Y.dot(Q.T) # m x d
                 Q_queue.put(Q)
@@ -125,7 +125,7 @@ def run_dbpca_estimator(value, neigh_condition, exos_condition, est_queues, est_
                                                                      attributes,
                                                                      n_streams
                                                                      )
-                    est_queues[stream_id].put((outliers, outliers_est, new_y_d))
+                    est_queues[stream_id].put((outliers, outliers_est, outlier_indices))
                 end = time.perf_counter() #end measuring estimation function
                 est_time_queue.put(end - start)
                 with exos_condition:
@@ -136,8 +136,8 @@ def run_dbpca_estimator(value, neigh_condition, exos_condition, est_queues, est_
                 with neigh_condition:
                     neigh_condition.notify_all()
                 logging.info("estimator --> temporal neighbor woken\n")
-        except buffer_queue.Empty:
-            pass
+        except Exception as e:
+            logging.error(f'Exception at estimator {e}')
     logging.info(f'estimator {pid} exit\n')
     value.value = -1 ### need to set value.value == -1 to make sure things work 
     sys.stdout.flush()
