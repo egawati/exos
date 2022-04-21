@@ -1,3 +1,4 @@
+
 import numpy as np
 import time
 import math
@@ -16,28 +17,28 @@ class ClusterKMeans():
         self.N = 0
 
 class SequentialKMeans:
-    def __init__(self, d, k=8, init_data=None):
+    def __init__(self, d, l=8, init_data=None):
         """
         k : number of clusters
         d : number of attributes
         init_data : when it is not None, it is a numpy array of size n x d
         """
-        self.k  = k
+        self.k  = l
         self.d = d
-        self.clusters = [None] * k
+        self.clusters = [None] * self.k
         if init_data is None:
-            for i in range(k):
-                centroid = np.random.rand(d)
+            for i in range(self.k):
+                centroid = np.random.rand(self.d)
                 self.clusters[i] = ClusterKMeans(centroid, 0)
         else:
-            kmeans = KMeans(n_clusters=k, random_state=0).fit(init_data)
+            kmeans = KMeans(n_clusters=self.k, random_state=0).fit(init_data)
             centroids = kmeans.cluster_centers_
-            for i in range(k):
+            for i in range(self.k):
                 centroid = centroids[i]
                 self.clusters[i] = ClusterKMeans(centroid, 0)
         self.y = list()
     
-    def absorb_incoming_datum(self, x, label=False):
+    def absorb_datum(self, x, label=False):
         idx = 0
         min_dist = np.linalg.norm(self.clusters[idx].centroid- x)
         for i in range(1, self.k):
@@ -49,15 +50,20 @@ class SequentialKMeans:
         if label:
             self.y.append(idx)
 
-def cluster_data(X, k=8, init_data=None):
+    def reset_clusters(self):
+        for i in range(self.k):
+            self.clusters[i].N = 0
+
+
+def cluster_data(X, l=8, init_data=None):
 	"""
 	X : numpy array of n x d
 	k : number of clusters
 	init_data : when it is not None, it is a numpy array of size n x d
 	"""
 	d = X.shape[1]
-	clustering = SequentialKMeans(d, k, init_data)
+	clustering = SequentialKMeans(d, l, init_data)
 	for i in range(X.shape[0]):
 	    x = X[i,:]
-	    clustering.absorb_incoming_datum(x, label=True)
+	    clustering.absorb_datum(x, label=True)
 	return clustering

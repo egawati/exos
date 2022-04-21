@@ -8,7 +8,7 @@ import setproctitle
 import logging
 logging.basicConfig(format='%(message)s', level=logging.INFO)
 
-def run_temporal_neighbors(neigh_condition, neigh_queue, bqueue, stream_id, ncluster, init_data):
+def run_temporal_neighbors(neigh_condition, neigh_queue, bqueue, stream_id, ncluster, init_data, C_queue):
     pid = os.getpid()
     setproctitle.setproctitle(f"Exos.TemporalNeighbor{stream_id}")
     while True:
@@ -21,11 +21,16 @@ def run_temporal_neighbors(neigh_condition, neigh_queue, bqueue, stream_id, nclu
                 neigh_queue.put(None)
                 break
             else:
-                clustering = temporal_neighbor.cluster_data(buffer, ncluster, init_data)
-                inlier_centroids = [cluster.centroid for cluster in clustering.clusters]
-                inlier_centroids = np.array(inlier_centroids)
+                clustering = C_queue.get()
+                clustering.reset_clusters()
+                for i in range(buffer.shape[0]):
+                    x = buffer[i,:]
+                    clustering.absorb_datum(x)
+                #inlier_centroids = [cluster.centroid for cluster in clustering.clusters]
+                #inlier_centroids = np.array(inlier_centroids)
                 end = time.perf_counter()
-                neigh_queue.put((inlier_centroids, end-start))
+                C_queue.put(clustering)
+                neigh_queue.put((clustering, end-start))
                 with neigh_condition:
                     neigh_condition.wait()
                 logging.info(f'Temporal neighbor {stream_id} woke')

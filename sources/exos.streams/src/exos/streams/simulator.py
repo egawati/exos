@@ -12,6 +12,7 @@ from .estimator import run_dbpca_estimator
 from .temporal_neighbor import run_temporal_neighbors
 from .outlying_attributes import run_outlying_attributes
 
+from exos.explainer.temporal_neighbor import SequentialKMeans
 import time
 
 import logging
@@ -70,14 +71,14 @@ def terminate_processes(n_streams, producers, consumer, estimator_p, neighbors, 
 
 def run_exos_simulator(sources, d, k, attributes, feature_names, 
                        window_size, n_clusters = (), n_init_data = (), 
-                       multiplier = 10, round_flag=True, threshold=0.0):
+                       round_flag=True, threshold=0.0):
     """
     Parameters
     ----------
     sources : list
         list of the TemporalDataStream objects
     d : int
-        number of attributes
+        total number of attributes in all streams
     k : int
         number of principle components to used
     attributes: tuple
@@ -93,9 +94,7 @@ def run_exos_simulator(sources, d, k, attributes, feature_names,
         list of the number of clusters in each stream
     n_init_data : tuple
         list of numpy array   
-    multiplier : int
-        the number of data points to sample when creating inlier/outlier class
-
+    
     Return
     a dictionary results
 
@@ -142,9 +141,9 @@ def run_exos_simulator(sources, d, k, attributes, feature_names,
     est_queues = [manager.Queue() for _ in range(n_streams)]
     est_time_queue = manager.Queue()
     neigh_queues = [manager.Queue() for _ in range(n_streams)]
+    C_queues = [manager.Queue() for _ in range(n_streams)]
     Q_queue = manager.Queue()
     exos_queues = [manager.Queue() for _ in range(n_streams)]
-
 
     Q = dbpca.initialize_Q(d,k)
     Q_queue.put(Q)
@@ -175,19 +174,28 @@ def run_exos_simulator(sources, d, k, attributes, feature_names,
 
     neighbors = list()
     for stream_id in range(n_streams):
-        ncluster = 2
+        ncluster = 4
         if n_clusters:
             ncluster = n_clusters[stream_id]
         init_data = None 
         if n_init_data:
             init_data = n_init_data[stream_id]
+        if stream_id < n_streams -1:
+            n_attrs = attributes[stream_id+1] - attributes[stream_id]
+        else:
+            n_attrs = d - attributes[stream_id]
+
+        clustering = SequentialKMeans(n_attrs)
+        C_queues[stream_id].put(clustering)
+
         neighbor = Process(target=run_temporal_neighbors,
                            args=(neigh_condition, 
                                  neigh_queues[stream_id], 
                                  buffer_queues[stream_id], 
                                  stream_id,
                                  ncluster, 
-                                 init_data),
+                                 init_data,
+                                 C_queues[stream_id]),
                            daemon=True)
         neighbors.append(neighbor)
 
@@ -200,7 +208,7 @@ def run_exos_simulator(sources, d, k, attributes, feature_names,
                               args=(value, exos_condition, est_queues[stream_id], 
                                     neigh_queues[stream_id], exos_queues[stream_id], 
                                     stream_id, attributes, feature_names, 
-                                    round_flag, multiplier, threshold),
+                                    round_flag, threshold),
                               daemon=True)
         explanations.append(explanation)
     for explanation in explanations:

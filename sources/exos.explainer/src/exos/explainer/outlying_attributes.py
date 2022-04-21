@@ -9,7 +9,7 @@ from sklearn.exceptions import ConvergenceWarning
 import logging
 logging.basicConfig(format='%(message)s', level=logging.INFO)
 
-def generate_outlier_class(est_outlier, outlier, d, round_flag=False, multiplier = 10):
+def generate_outlier_class(est_outlier, outlier, cluster_count, d, radius, round_flag=False):
     """
     Parameters
     ----------
@@ -25,32 +25,36 @@ def generate_outlier_class(est_outlier, outlier, d, round_flag=False, multiplier
         determine the number of sampling to generate
     """
     dist = np.linalg.norm(est_outlier-outlier)
-    covariance = np.identity(d) * dist / (3**2)
-    n = d * multiplier
+    if dist < radius:
+        dist = radius
+    covariance = np.identity(d) * dist / (3)
+    n = d * cluster_count
     gaussian_data = np.random.multivariate_normal(outlier, covariance, n)
     if round_flag:
         gaussian_data = np.round(gaussian_data)
     outlier_class = np.vstack((gaussian_data, outlier))
     return outlier_class
 
-def generate_inlier_class(est_outlier, inlier_centers, d, round_flag=False, multiplier=10):
+def generate_inlier_class(est_outlier, inlier_centers, cluster_counts, d, round_flag=False):
     min_dist = np.linalg.norm(est_outlier-inlier_centers[0,:])
     inlier_nearest_neighbor = inlier_centers[0,:]
+    idx = 0
     for i in range(1, inlier_centers.shape[0]):        
         dist = np.linalg.norm(est_outlier-inlier_centers[i,:])
         if min_dist < dist:
             min_dist = dist
             inlier_nearest_neighbor = inlier_centers[0,:]
+            idx = i
 
     #logging.info(f'inlier {inlier_nearest_neighbor.shape}')
-    covariance = np.identity(d) * min_dist / (3**2)
+    covariance = np.identity(d) * min_dist / (3)
     #logging.info(f'd {d}')
-    n = d * multiplier
+    n = d * cluster_counts[idx]
     gaussian_data = np.random.multivariate_normal(inlier_nearest_neighbor, covariance, n)
     if round_flag:
         gaussian_data = np.round(gaussian_data)
     inlier_class = np.vstack((gaussian_data, est_outlier))
-    return inlier_class
+    return inlier_class, min_dist, cluster_counts[idx]
 
 def compute_feature_contribution(n_features, npoints, classifiers):
     """
@@ -115,10 +119,10 @@ def run_svc(outlier_class, inlier_class,
     clf.fit(X, y)
     return clf
 
-def find_outlying_attributes(outlier_point, est_outlier, inlier_centroids, 
+def find_outlying_attributes(outlier_point, est_outlier, 
+                             inlier_centroids, cluster_counts, 
                              d, feature_names, 
                              round_flag=False, 
-                             multiplier=10,
                              threshold=0.0):
     """
     Parameters
@@ -132,8 +136,8 @@ def find_outlying_attributes(outlier_point, est_outlier, inlier_centroids,
     round_flag
         whether to round each generated sampling
     """
-    inlier_class = generate_inlier_class(est_outlier, inlier_centroids, d, round_flag, multiplier)
-    outlier_class = generate_outlier_class(est_outlier, outlier_point, d, round_flag, multiplier)
+    inlier_class,min_dist, cluster_count = generate_inlier_class(est_outlier, inlier_centroids, cluster_counts,d, round_flag)
+    outlier_class = generate_outlier_class(est_outlier, outlier_point, cluster_count, d, min_dist, round_flag)
     classifier = run_svc(outlier_class, inlier_class)
     #feature_scores = compute_simple_feature_contribution(d, (classifier,))
     attr_contributions = compute_attribute_contribution(d, classifier)

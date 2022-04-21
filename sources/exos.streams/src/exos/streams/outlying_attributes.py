@@ -1,15 +1,15 @@
 from exos.explainer.outlying_attributes import find_outlying_attributes
+import numpy as np
 import time
 import os
 import sys
 import setproctitle
-
 import logging
 logging.basicConfig(format='%(message)s', level=logging.INFO)
 
 def run_outlying_attributes(value, exos_condition, est_queue, neigh_queue, 
                             exos_queue, stream_id, attributes, 
-                            feature_names, round_flag=False, multiplier=10, threshold=0.0):
+                            feature_names, round_flag=False, threshold=0.0):
     pid = os.getpid()
     setproctitle.setproctitle(f"Exos.OA{stream_id}")
     while True:
@@ -24,7 +24,14 @@ def run_outlying_attributes(value, exos_condition, est_queue, neigh_queue,
             else:
                 logging.info(f'Generating outlying attributes at {stream_id}\n')
                 outliers, outliers_est, new_y_d = estimator_result
-                inlier_centroids, neigh_run_time = neigh_result
+                clustering, neigh_run_time = neigh_result
+                inlier_centroids = list()
+                cluster_counts = list()
+                for cluster in clustering.clusters:
+                    inlier_centroids.append(cluster.centroid)
+                    cluster_counts.append(cluster.N)
+
+                inlier_centroids = np.array(inlier_centroids)
                 
                 if outliers.shape[0] == 0:
                     exos_queue.put({"out_attrs" : None, 
@@ -43,10 +50,10 @@ def run_outlying_attributes(value, exos_condition, est_queue, neigh_queue,
                     out_attributes = find_outlying_attributes( outlier, 
                                                                outliers_est[i,:],
                                                                inlier_centroids, 
+                                                               cluster_counts,
                                                                d, 
                                                                feature_names[stream_id], 
                                                                round_flag, 
-                                                               multiplier,
                                                                threshold)
                     outlying_attributes.append(out_attributes)
                 end = time.perf_counter()
