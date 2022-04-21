@@ -27,7 +27,7 @@ def generate_outlier_class(est_outlier, outlier, cluster_count, d, radius, round
     dist = np.linalg.norm(est_outlier-outlier)
     if dist < radius:
         dist = radius
-    covariance = np.identity(d) * dist / (3)
+    covariance = np.identity(d) * dist / (3*2)
     n = d * cluster_count
     gaussian_data = np.random.multivariate_normal(outlier, covariance, n)
     if round_flag:
@@ -47,7 +47,7 @@ def generate_inlier_class(est_outlier, inlier_centers, cluster_counts, d, round_
             idx = i
 
     #logging.info(f'inlier {inlier_nearest_neighbor.shape}')
-    covariance = np.identity(d) * min_dist / (3)
+    covariance = np.identity(d) * min_dist / (3*2)
     #logging.info(f'd {d}')
     n = d * cluster_counts[idx]
     gaussian_data = np.random.multivariate_normal(inlier_nearest_neighbor, covariance, n)
