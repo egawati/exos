@@ -58,7 +58,6 @@ def generate_inlier_class(est_outlier, inlier_centers, cluster_counts, d, round_
 
 
 def compute_attribute_contribution(n_features, classifier):
-    print(f'hyperplane weights are {classifier.coef_[0]}\n')
     abs_weights = np.abs(classifier.coef_[0])
     attr_contributions = abs_weights/np.sum(abs_weights)
     return attr_contributions
