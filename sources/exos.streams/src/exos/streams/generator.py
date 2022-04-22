@@ -116,7 +116,6 @@ def stream_consumer(condition, queues, buffer_queue, buffer_queues, y_queue):
 	        ### a data point is an outlier is = 1
 	        y_d[source_id] = np.where(y==1)[0]
 	        buffer_queues[source_id].put(X)
-	    print(y_d)
 	    buffer_queue.put(hash_d)
 	    y_queue.put(y_d)
 	    with condition:

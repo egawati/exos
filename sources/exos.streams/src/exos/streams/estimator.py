@@ -98,6 +98,7 @@ def run_dbpca_estimator(value, neigh_condition, exos_condition, est_queues, est_
         try:
             hash_d = buffer_queue.get()
             y_d = y_queue.get()
+            #print(f'label is {y_d}\n')
             if hash_d is None:
                 for stream_id in range(n_streams):
                     est_queues[stream_id].put(None)
@@ -116,6 +117,8 @@ def run_dbpca_estimator(value, neigh_condition, exos_condition, est_queues, est_
                 Y = all_outliers.dot(Q) # m x k
                 all_outliers_est = Y.dot(Q.T) # m x d
                 Q_queue.put(Q)
+
+                #print(f'outlier_indices is {outlier_indices}\n')
 
                 for stream_id in range(n_streams):
                     outliers, outliers_est = slice_estimating_matrix(stream_id,

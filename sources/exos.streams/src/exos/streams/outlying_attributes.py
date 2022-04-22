@@ -24,6 +24,7 @@ def run_outlying_attributes(value, exos_condition, est_queue, neigh_queue,
             else:
                 logging.info(f'Generating outlying attributes at {stream_id}\n')
                 outliers, outliers_est, outlier_indices = estimator_result
+                print(f'outlier_indices is {outlier_indices}\n')
                 clustering, neigh_run_time = neigh_result
                 inlier_centroids = list()
                 cluster_counts = list()
@@ -57,7 +58,7 @@ def run_outlying_attributes(value, exos_condition, est_queue, neigh_queue,
                                                                threshold)
                     outlying_attributes.append(out_attributes)
                 end = time.perf_counter()
-                print(f'outlier_indices {type(outlier_indices[0])}')
+                #print(f'outlier_indices {type(outlier_indices[0])}')
                 exos_queue.put({"out_attrs" : outlying_attributes, 
                                 "outlier_indices" : outlier_indices, 
                                 "temporal_neighbor_time" : neigh_run_time, 

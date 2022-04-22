@@ -222,7 +222,8 @@ def run_exos_simulator(sources, d, k, attributes, feature_names,
         outputs = {}
         for stream_id in range(n_streams):
             output = exos_queues[stream_id].get()
-            outputs[stream_id] = output
+            if output is not None:
+                outputs[stream_id] = output
         est_time = est_time_queue.get()
         if est_time is None:
             break
