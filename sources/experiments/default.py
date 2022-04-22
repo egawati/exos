@@ -14,9 +14,9 @@ if __name__ == '__main__':
     profiling = True
     round_flag = False
     multiplier = 10
-    threshold=0.0
+    threshold=0.05
     
-    n_streams = 2
+    n_streams = 16
     window_size = 1000
 
     folder = '/home/epanjei/Codes/OutlierGen/exos/default'

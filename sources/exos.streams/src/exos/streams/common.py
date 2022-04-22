@@ -21,7 +21,7 @@ def get_outliers(arr, y_d, n_streams):
     for i in range(1, n_streams):
         outlier_index.update(y_d[i])
         new_y_d[i] = list()
-        outlier_indices[i] = [int(val) for val in y_d[0]]
+        outlier_indices[i] = [int(val) for val in y_d[i]]
 
     outlier_index = list(outlier_index)
     

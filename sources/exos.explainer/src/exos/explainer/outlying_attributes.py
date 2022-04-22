@@ -21,13 +21,13 @@ def generate_outlier_class(est_outlier, outlier, cluster_count, d, radius, round
         number of attributes
     round_flag : boolean
         whether to round each generated sampling
-    multiplier: int
+    cluster_count: int
         determine the number of sampling to generate
     """
     dist = np.linalg.norm(est_outlier-outlier)
     if dist < radius:
         dist = radius
-    covariance = np.identity(d) * dist / (3*2)
+    covariance = np.identity(d) * (dist / (3**2))
     n = d * cluster_count
     gaussian_data = np.random.multivariate_normal(outlier, covariance, n)
     if round_flag:
@@ -47,7 +47,7 @@ def generate_inlier_class(est_outlier, inlier_centers, cluster_counts, d, round_
             idx = i
 
     #logging.info(f'inlier {inlier_nearest_neighbor.shape}')
-    covariance = np.identity(d) * min_dist / (3*2)
+    covariance = np.identity(d) * (min_dist / (3**2))
     #logging.info(f'd {d}')
     n = d * cluster_counts[idx]
     gaussian_data = np.random.multivariate_normal(inlier_nearest_neighbor, covariance, n)
@@ -66,7 +66,7 @@ def compute_attribute_contribution(n_features, classifier):
 def map_feature_scores(feature_names, feature_scores, threshold=0.0):
     result = {k: v for k, v in zip(feature_names, feature_scores)}
     result = dict((k, v) for k, v in result.items() if v > threshold)
-    #result = dict(sorted(result.items(), key=lambda result: result[1], reverse=True))
+    result = dict(sorted(result.items(), key=lambda result: result[1], reverse=True))
     return result
 
 @ignore_warnings(category=ConvergenceWarning)
