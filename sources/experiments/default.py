@@ -16,7 +16,7 @@ if __name__ == '__main__':
     multiplier = 10
     threshold=0.0
     
-    n_streams = 16
+    n_streams = 2
     window_size = 1000
 
     folder = '/home/epanjei/Codes/OutlierGen/exos/default'
@@ -44,7 +44,7 @@ if __name__ == '__main__':
         attributes.append(d)
         #counter += len(columns)
         d += len(columns)
-        ts = TemporalDataStream(X,y)
+        ts = TemporalDataStream(X,y, ordered=True)
         sources.append(ts)
 
     k = 1
@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
     results = run_exos_simulator(sources, d, k, attributes, feature_names, 
                                  window_size, n_clusters = (), n_init_data = (), 
-                                 multiplier = multiplier, round_flag=round_flag, threshold=threshold)
+                                 round_flag=round_flag, threshold=threshold)
 
     filename = f'default.pkl'
     exos_file = open(filename, 'ab')
