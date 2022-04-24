@@ -58,7 +58,7 @@ if __name__ == '__main__':
                                  round_flag=round_flag, threshold=threshold)
 
     filename = f'default.pkl'
-    exos_file = open(filename, 'ab')
-    pickle.dump(results, exos_file)
+    with open(filename, 'wb') as f:
+        pickle.dump(results, f)
 
     
