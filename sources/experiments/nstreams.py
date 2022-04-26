@@ -8,20 +8,46 @@ from exos.streams import run_exos_simulator
 
 import pickle
 
+import os
+import argparse
+
+def define_arguments():
+    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--ex_number', type=int, required=True)
+    parser.add_argument('--nstreams', type=int, required=True)
+    parser.add_argument('--bfname', type=str, required=True)
+    parser.add_argument('--dfolder', type=str, required=True)
+    parser.add_argument('--relpath', type=str, required=True)
+    parser.add_argument('--k', default=1, type=int)
+    parser.add_argument('--wsize', default=1000, type=int)
+    parser.add_argument('--multiplier', default=10, type=int)
+    parser.add_argument('--threshold', default=0.05, type=float)
+    parser.add_argument('--round_flag', default=False, type=bool)
+    args = parser.parse_args()
+    return args 
+
 if __name__ == '__main__':
+
+    args = define_arguments()
     set_start_method("spawn")
 
-    profiling = True
-    round_flag = False
-    multiplier = 10
-    threshold=0.05
-    
-    n_streams = 32
-    window_size = 1000
+    ex_number = args.ex_number
+    data_folder = args.dfolder
+    round_flag = args.round_flag
+    multiplier = args.multiplier
+    threshold= args.threshold
+    n_streams = args.nstreams 
+    window_size = args.wsize
+    bfname = args.bfname    # example: 100K_Case1
+    k = args.k              ## number of principal component used 
+    rel_path = f'{args.relpath}/{n_streams}' ## example: pickles/nstreams
 
-    folder = '/home/epanjei/Codes/OutlierGen/exos/nstreams/thirtytwo'
-    dest_folder = '/home/epanjei/Codes/EXOS/sources/experiments/pickles/nstreams'
-    basic_filename = '32_100K_Case1'
+    print(k)
+
+    cwd = os.getcwd()
+
+    basic_filename = f'{n_streams}_{bfname}'
     filenames = [f'{i}_{basic_filename}.pkl' for i in range(n_streams)]
 
     F = list() ## storing outlying attributes ground truth
@@ -32,9 +58,8 @@ if __name__ == '__main__':
     feature_names = {} 
     
     d = 0
-
     for i in range(n_streams):
-        df = pd.read_pickle(f'{folder}/{filenames[i]}')
+        df = pd.read_pickle(f'{data_folder}/{filenames[i]}')
         F.append(df['outlying_attributes'])
         y = np.array(df['label'])
         labels.append(y)
@@ -49,8 +74,7 @@ if __name__ == '__main__':
         ts = TemporalDataStream(X,y, ordered=True)
         sources.append(ts)
 
-    k = 1 ## number of principal component used
-
+    
     print(f'attributes {attributes}')
     print(f'source len {len(sources)}')
     print(f'total attributes {d}')
@@ -59,7 +83,9 @@ if __name__ == '__main__':
                                  window_size, n_clusters = (), n_init_data = (), 
                                  round_flag=round_flag, threshold=threshold)
 
-    filepath = f'{dest_folder}/{basic_filename}.pkl'
+    
+    path = os.path.join(cwd, rel_path)
+    filepath = f'{path}/{ex_number}_{basic_filename}.pkl'
     with open(filepath, 'wb') as f:
         pickle.dump(results, f)
 
