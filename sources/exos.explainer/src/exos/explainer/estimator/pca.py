@@ -8,8 +8,8 @@ from scipy.linalg.interpolative import estimate_spectral_norm
 import logging
 logging.basicConfig(format='%(message)s', level=logging.INFO)
 
-def compute_principal_components(cov, C, variance_explained=1, profiling=False):
-    eig_values, eig_vectors = eig(cov)
+def compute_principal_components(cov, variance_explained=1, profiling=False):
+    eig_values, eig_vectors = np.linalg.eig(cov)
     k = len(eig_values)
     if variance_explained != 1:
         trace = sum(eig_values)
@@ -35,9 +35,9 @@ def do_pca(C, variance_explained=1, profiling=False):
     C is a matrix n x d, where n is number of data points, d is number of attributes
     """
     cov = np.cov(C.T)
-    eig_vectors, k = compute_principal_components(cov, C, variance_explained, profiling)
-    Y = project_data(C, eig_vectors, k, profiling)
-    return Y, eig_vectors, k
+    eig_vectors, k = compute_principal_components(cov, variance_explained, profiling)
+    #Y = project_data(C, eig_vectors, k, profiling)
+    return eig_vectors, k
 
 
 def reconstruct_X(Y, eig_vectors, k):
