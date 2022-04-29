@@ -1,6 +1,6 @@
 #!/bin/bash
 N=15
-case="Case2"
+case="Case4"
 D="/home/epanjei/Codes/OutlierGen/exos/cases/${case}"
 bfname="100K_${case}"
 relpath="pickles/cases/${case}"
