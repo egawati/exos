@@ -5,27 +5,25 @@ from skmultiflow.data import TemporalDataStream
 
 from multiprocessing import Process, Condition, Value, Manager
 
-from exos.explainer.estimator import dbpca
-
 from .generator import stream_producer, stream_consumer
-from .estimator import run_dbpca_estimator
+from .estimator import run_naive_pca_estimator
 from .temporal_neighbor import run_temporal_neighbors
 from .outlying_attributes import run_outlying_attributes
-
 from .mp_tasks import join_processes
 from .mp_tasks import terminate_processes
 
 from exos.explainer.temporal_neighbor import SequentialKMeans
-import time
 
+
+import time
 import logging
 logging.basicConfig(format='%(message)s', level=logging.INFO)
 
 
 
-def run_exos_simulator(sources, d, k, attributes, feature_names, 
-                       window_size, n_clusters = (), n_init_data = (), 
-                       round_flag=True, threshold=0.0):
+def run_naive_exos_simulator(sources, d, k, attributes, feature_names, 
+                             window_size, n_clusters = (), n_init_data = (), 
+                             round_flag=True, threshold=0.0):
     """
     Parameters
     ----------
@@ -96,11 +94,7 @@ def run_exos_simulator(sources, d, k, attributes, feature_names,
     est_time_queue = manager.Queue()
     neigh_queues = [manager.Queue() for _ in range(n_streams)]
     C_queues = [manager.Queue() for _ in range(n_streams)]
-    Q_queue = manager.Queue()
     exos_queues = [manager.Queue() for _ in range(n_streams)]
-
-    Q = dbpca.initialize_Q(d,k)
-    Q_queue.put(Q)
 
     ### Initialize conditions
     condition = Condition()
@@ -119,10 +113,10 @@ def run_exos_simulator(sources, d, k, attributes, feature_names,
                        daemon=True)
     consumer.start()
 
-    estimator_p = Process(target=run_dbpca_estimator,
+    estimator_p = Process(target=run_naive_pca_estimator,
                         args=(value, neigh_condition, exos_condition, 
                               est_queues, est_time_queue, buffer_queue, 
-                              n_streams, Q_queue, d, k, y_queue, attributes),
+                              n_streams, d, k, y_queue, attributes),
                         daemon=True)
     estimator_p.start()
 
@@ -188,7 +182,7 @@ def run_exos_simulator(sources, d, k, attributes, feature_names,
     logging.info('Terminating processes')
     terminate_processes(n_streams, producers, consumer, estimator_p, neighbors, explanations,
                         queues, buffer_queue, buffer_queues, est_queues, est_time_queue,
-                        neigh_queues, exos_queues, y_queue, Q_queue)
+                        neigh_queues, exos_queues, y_queue, Q_queue=None)
 
     end = time.perf_counter()
     logging.info('Done')
