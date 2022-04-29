@@ -1,5 +1,5 @@
 #!/bin/bash
-N=35
+N=50
 D="/home/epanjei/Codes/OutlierGen/exos/nstreams/${N}"
 
 for ((i=1; i<11; i++))
