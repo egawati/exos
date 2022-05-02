@@ -232,7 +232,7 @@ def recap_performance_by_cases(rel_path =  'pickles/performance/cases',
     avg_recall = list()
     avg_f1_score = list()
     avg_running_time = list()
-    streams = list()
+    case_list = list()
     for case in cases:
         bfname = f'{bname}_{case}'
         file_path = f'{rel_path}/{case}/{nstreams}/aggregate_{nstreams}_{bfname}.pkl'
@@ -242,8 +242,8 @@ def recap_performance_by_cases(rel_path =  'pickles/performance/cases',
         avg_recall.append(df['recall'].mean())
         avg_f1_score.append(df['f1_score'].mean())
         avg_running_time.append(df['running_time'].mean())
-        streams.append(nstreams)
-    performance = {'nstreams' : streams, 
+        case_list.append(case)
+    performance = {'case' : cases, 
                    'avg_precision' : avg_precision,
                    'avg_recall' : avg_recall,
                    'avg_f1_score' : avg_f1_score,
