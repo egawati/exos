@@ -1,7 +1,7 @@
 #!/bin/bash
-N=5
+N=50
 D="/home/epanjei/Codes/OutlierGen/exos/nstreams/${N}"
-relpath="pickles/naive/nstreams"
+relpath="pickles/nstreams"
 bfname="100K_Case1"
 
 for ((i=1; i<2; i++))
