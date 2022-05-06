@@ -117,6 +117,7 @@ def compute_performance_v2(gt_folder, gt_filename, result_folder, result_filenam
 def aggregate_performance(gt_folder, gt_filename, result_folder, result_filename,
                           performance_folder,
                           n_streams, window_size, non_data_attr=2):
+    print(f'gt_folder in aggregate performance is {gt_folder}')
     n_outliers, accuracies, simulation_time = compute_performance_v2(gt_folder, 
                                                                      gt_filename, 
                                                                      result_folder, 
@@ -251,3 +252,60 @@ def recap_performance_by_cases(rel_path =  'pickles/performance/cases',
     df = pd.DataFrame(performance)
     df.to_pickle(f'{rel_path}/avg_performance_{bname}.pkl')
     return df
+
+def get_performance_case( n_streams, 
+                          bfname, 
+                          gt_folder,
+                          rel_path,
+                          performance_folder,
+                          n_experiments=30,
+                          window_size=1000,
+                          non_data_attr=2,
+                          vcase='Case1'):
+        
+    cwd = os.getcwd()
+    result_folder = os.path.join(cwd, rel_path)
+    print(f'result folder is {result_folder}')
+    performance_folder=os.path.join(cwd, performance_folder)
+    print(f'performance folder is {performance_folder}')
+
+    if not os.path.exists(performance_folder):
+        os.makedirs(performance_folder)
+    
+    experiments = list()
+    simulation_times = list()
+    precision_means = list()
+    recall_means = list()
+    f1_score_means = list()
+    
+    for i in range(1,n_experiments+1):
+        gt_folder_exp = f'{gt_folder}/{i}'
+        print(f'gt_folder in get performance case is {gt_folder}')
+        basic_filename = f'{n_streams}_{bfname}_{i}'
+        gt_filename = f'{basic_filename}.pkl'
+        result_filename = f'{basic_filename}.pkl'
+        df, s_time = aggregate_performance(gt_folder=gt_folder_exp, 
+                                           gt_filename=gt_filename, 
+                                           result_folder=result_folder, 
+                                           result_filename= result_filename,
+                                           performance_folder=performance_folder,
+                                           n_streams=n_streams, 
+                                           window_size=window_size, 
+                                           non_data_attr=non_data_attr)
+        simulation_times.append(s_time)
+        precision_means.append(df['precision'].mean())
+        recall_means.append(df['recall'].mean())
+        f1_score_means.append(df['f1_score'].mean())
+        experiments.append(i)
+    
+    accuracy = {'experiment' : experiments, 
+                'precision' : precision_means, 
+                'recall': recall_means,
+                'f1_score' : f1_score_means,
+                'running_time' : simulation_times}
+    
+    df_aggregate = pd.DataFrame(accuracy)
+    df_aggregate.to_pickle(f'{performance_folder}/aggregate_{gt_filename}')
+    print(f'Comparing experiments stored in {result_folder} with ground truth stores in {gt_folder}')
+    print(f'Perfomance is stored is {performance_folder}')
+    return df_aggregate
