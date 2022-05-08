@@ -1,0 +1,79 @@
+---
+title: "EXOS Performance Evaluation"
+author: "Egawati Panjei"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+  pdf_document:
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Case
+
+In this report, we generate 30 datasets for Case 1 (all data attributes have strong correlation) and Case 4 (all data attributes have weak correlation).
+Dataset _i_ for each case is generated using the same seed random number. Hence, they have the same number of attributes in each group (stream). Each attribute j in Case 1 and Case 2 has similar mean and range. However, the mean and range of each attribute in each case is different. Cases 1 and 2 also have the same number of inlier and outlier data points. The difference is in their data attribute correlation.
+
+## Case 1
+
+```{r}
+df_case1 = read.csv('dbpca/pickles/performance/Case1/aggregate_15_10K_Case1_30.csv')
+df_case1
+```
+
+## Case 4
+
+```{r}
+df_case4 = read.csv('dbpca/pickles/performance/Case4/aggregate_15_10K_Case4_30.csv')
+df_case4
+```
+
+# Precision
+
+## Variance Test for Precision 
+```{r}
+var.test(df_case1$precision, df_case4$precision)
+```
+
+The var test shows that the true ratio of precision variances of Case 1 and Case 4 is equal to 1 (accept the null hypothesis). 
+
+## t Test for Precision 
+```{r}
+t.test(df_case1$precision, df_case4$precision, alternative = "greater", var.equal=TRUE)
+```
+The t test shows that there is no difference between the precision mean of Case 1 and Case 4. We accept the null hypothesis. 
+
+# Recall
+
+## Variance Test for recall 
+```{r}
+var.test(df_case1$recall, df_case4$recall)
+```
+
+The var test shows that the true ratio of recall variances of Case 1 and Case 4 is equal to 1 (accept the null hypothesis). 
+
+
+## t Test for recall 
+```{r}
+t.test(df_case1$recall, df_case4$recall, alternative = "greater", var.equal=TRUE)
+```
+The t test shows that there is no difference between the recall mean of Case 1 and Case 4. We accept the null hypothesis. 
+
+# F1 score
+
+## Variance Test for F1 score
+```{r}
+var.test(df_case1$f1_score, df_case4$f1_score)
+```
+The var test shows that the true ratio of f1 score variances of Case 1 and Case 4 is equal to 1 (accept the null hypothesis). 
+
+## t Test for F1 score 
+```{r}
+t.test(df_case1$f1_score, df_case4$f1_score, alternative = "greater", var.equal=TRUE)
+```
+The t test shows that there is no difference between the F1 score mean of Case 1 and Case 4. We accept the null hypothesis since p-value is not small enough.  
