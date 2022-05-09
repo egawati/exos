@@ -85,7 +85,10 @@ if __name__ == '__main__':
 
     
     path = os.path.join(cwd, rel_path)
+    if not os.path.exists(path):
+        os.makedirs(path)
     filepath = f'{path}/{ex_number}_{basic_filename}.pkl'
+    print(f'save result to {filepath}')
     with open(filepath, 'wb') as f:
         pickle.dump(results, f)
 
