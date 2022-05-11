@@ -108,4 +108,11 @@ def find_outlying_attributes(outlier_point, est_outlier,
     #feature_scores = compute_simple_feature_contribution(d, (classifier,))
     attr_contributions = compute_attribute_contribution(d, classifier)
     result = map_feature_scores(feature_names, attr_contributions, threshold)
+    # logging.info(f'^^^^^^^^^^^^^^^^^^^^^')
+    # logging.info(f'outlier {outlier_point}')
+    # logging.info(f'est normal value {est_outlier}')
+    # logging.info(f'inlier class {inlier_class}')
+    # logging.info(f'outlier class {outlier_class}')
+    # logging.info(f'outlying attributes {result}')
+    # logging.info(f'^^^^^^^^^^^^^^^^^^^^^')
     return result

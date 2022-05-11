@@ -22,7 +22,7 @@ def define_arguments():
     parser.add_argument('--k', default=1, type=int)
     parser.add_argument('--wsize', default=1000, type=int)
     parser.add_argument('--multiplier', default=10, type=int)
-    parser.add_argument('--threshold', default=0.05, type=float)
+    parser.add_argument('--threshold', default=0.0, type=float)
     parser.add_argument('--round_flag', default=False, type=bool)
     args = parser.parse_args()
     return args 
@@ -58,6 +58,8 @@ if __name__ == '__main__':
     feature_names = {} 
     
     d = 0
+    nclusters = 4
+    n_init_centroids = list()
     for i in range(n_streams):
         df = pd.read_pickle(f'{data_folder}/{filenames[i]}')
         F.append(df['outlying_attributes'])
@@ -65,7 +67,7 @@ if __name__ == '__main__':
         labels.append(y)
         df = df.drop(['label', 'outlying_attributes'], axis=1)
         X = df.to_numpy()
-
+        n_init_centroids.append(X[0:nclusters,:])
         columns = list(df.columns)
         feature_names[i] = columns
         attributes.append(d)
@@ -80,7 +82,7 @@ if __name__ == '__main__':
     print(f'total attributes {d}')
 
     results = run_exos_simulator(sources, d, k, attributes, feature_names, 
-                                 window_size, n_clusters = (), n_init_data = (), 
+                                 window_size, n_clusters = (), n_init_centroids = n_init_centroids, 
                                  round_flag=round_flag, threshold=threshold)
 
     

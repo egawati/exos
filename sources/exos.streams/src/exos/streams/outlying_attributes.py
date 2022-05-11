@@ -4,6 +4,7 @@ import time
 import os
 import sys
 import setproctitle
+np.set_printoptions(precision=2)
 import logging
 logging.basicConfig(format='%(message)s', level=logging.INFO)
 
@@ -22,6 +23,7 @@ def run_outlying_attributes(value, exos_condition, est_queue, neigh_queue,
                 logging.info(f"OA {stream_id} DONE\n")
                 break
             else:
+                logging.info('-------------------')
                 logging.info(f'Generating outlying attributes at {stream_id}\n')
                 outliers, outliers_est, outlier_indices = estimator_result
                 #print(f"outliers {outliers}\n")
@@ -35,6 +37,7 @@ def run_outlying_attributes(value, exos_condition, est_queue, neigh_queue,
                     cluster_counts.append(cluster.N)
 
                 inlier_centroids = np.array(inlier_centroids)
+                logging.info(f'temporal neighbors at stream {stream_id} are {inlier_centroids}')
                 
                 if outliers.shape[0] == 0:
                     exos_queue.put({"out_attrs" : None, 
@@ -49,10 +52,9 @@ def run_outlying_attributes(value, exos_condition, est_queue, neigh_queue,
 
                 d = inlier_centroids.shape[1]
                 outlying_attributes = list()
-                logging.info('-------------------')
                 logging.info(f'At stream {stream_id} Outliers are {outliers}\n')
                 logging.info(f'Estimated values of outliers are {outliers_est}')
-                logging.info('-------------------')
+                
                 for i, outlier in enumerate(outliers):
                     out_attributes = find_outlying_attributes( outlier, 
                                                                outliers_est[i,:],
@@ -64,13 +66,12 @@ def run_outlying_attributes(value, exos_condition, est_queue, neigh_queue,
                                                                threshold)
                     outlying_attributes.append(out_attributes)
                 end = time.perf_counter()
-                #print(f'outlier_indices {type(outlier_indices[0])}')
                 exos_queue.put({"out_attrs" : outlying_attributes, 
                                 "outlier_indices" : outlier_indices, 
                                 "temporal_neighbor_time" : neigh_run_time, 
                                 "out_attrs_time" : end-start})
-                if stream_id == 1:
-                    print(f"y at stream 1 is {outlier_indices}")
+                logging.info(f'outlying attributes at stream {stream_id} is {outlying_attributes}')
+                logging.info('-------------------')
                 with exos_condition:
                     with value.get_lock():
                         value.value -= 1

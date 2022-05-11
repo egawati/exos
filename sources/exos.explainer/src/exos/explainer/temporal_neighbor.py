@@ -17,7 +17,7 @@ class ClusterKMeans():
         self.N = 0
 
 class SequentialKMeans:
-    def __init__(self, d, l=8, init_data=None):
+    def __init__(self, d, init_centroids=None, l=8, init_data=None):
         """
         k : number of clusters
         d : number of attributes
@@ -28,10 +28,12 @@ class SequentialKMeans:
         self.clusters = [None] * self.k
         if init_data is None:
             for i in range(self.k):
-                centroid = np.random.rand(self.d)
+                centroid = init_centroids[i]
                 self.clusters[i] = ClusterKMeans(centroid, 0)
         else:
-            kmeans = KMeans(n_clusters=self.k, random_state=0).fit(init_data)
+            init_centroids = init_data[0:l,:]
+            logging.info(f'init centroids are {init_centroids}')
+            kmeans = KMeans(n_clusters=self.k, init=init_centroids).fit(init_data)
             centroids = kmeans.cluster_centers_
             for i in range(self.k):
                 centroid = centroids[i]

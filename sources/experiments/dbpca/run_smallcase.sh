@@ -1,6 +1,6 @@
 #!/bin/bash
 N=2
-case="Case1"
+case="Case4"
 D="../../../../OutlierGen/exos/small_cases/${case}"
 bfname="100_${case}"
 relpath="pickles/${case}"
