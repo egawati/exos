@@ -9,6 +9,7 @@ from metrics import get_performance_case
 if __name__ == '__main__':
 
 	case = 'Case4'
+	version = '_v2'
 	bfname = f'10K_{case}'
 	n_streams = 15
 	n_experiments = 30
@@ -16,13 +17,13 @@ if __name__ == '__main__':
 	non_data_attr = 2
 	
 	cwd = os.getcwd()
-	gt_folder = f"../../../../OutlierGen/exos/{case}"
+	gt_folder = f"../../../../OutlierGen/exos/{case}{version}"
 	gt_folder = os.path.join(cwd, gt_folder)
 	print(f'gt_folder is {gt_folder}')
 	
-	performance_folder = f'pickles/performance/{case}'
+	performance_folder = f'pickles/performance/{case}{version}'
 
-	rel_path = f'pickles/{case}'
+	rel_path = f'pickles/{case}{version}'
 
 	df = get_performance_case(n_streams = n_streams,
 							  bfname = bfname, 

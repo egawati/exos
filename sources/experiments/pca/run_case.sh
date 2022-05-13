@@ -1,9 +1,10 @@
 #!/bin/bash
 N=15
-case="Case1"
-D="../../../../OutlierGen/exos/${case}"
+case="Case4"
+version="v2"
+D="../../../../OutlierGen/exos/${case}_${version}"
 bfname="10K_${case}"
-relpath="pickles/${case}"
+relpath="pickles/${case}_${version}"
 nsets=31
 
 for ((i=1; i<$nsets; i++))

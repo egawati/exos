@@ -60,10 +60,14 @@ def get_confusion_matrix_v2(out_attrs, ground_truth, total_attributes):
 
 
 def compute_precision(confusion_matrix):
+    if confusion_matrix['TP']  == 0:
+        return 0
     precision = confusion_matrix['TP'] / ( confusion_matrix['TP'] +  confusion_matrix['FP'])
     return precision
 
 def compute_recall(confusion_matrix):
+    if confusion_matrix['TP'] == 0:
+        return 0
     recall = confusion_matrix['TP'] / ( confusion_matrix['TP'] +  confusion_matrix['FN'])
     return recall
 
@@ -99,7 +103,11 @@ def compute_performance_v2(gt_folder, gt_filename, result_folder, result_filenam
                 n_outliers += len(outlier_indices)
                 ground_truth = new_df.iloc[outlier_indices].reset_index(drop=True)
                 outlying_attributes = results['output'][window][i]['out_attrs']
+                print(f'outlier_indices {outlier_indices}')
                 for idx , gt in ground_truth.iterrows():
+                    print(f'idx {idx} at window {window} at stream {i}')
+                    print(f'out_attrs is {outlying_attributes[idx]}')
+                    print(f'ground_truth is {gt["outlying_attributes"]}')
                     confusion_matrix = get_confusion_matrix_v2(outlying_attributes[idx], 
                                                             gt['outlying_attributes'], 
                                                             n_attributes)
