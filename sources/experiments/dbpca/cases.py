@@ -59,6 +59,7 @@ if __name__ == '__main__':
     feature_names = {} 
     
     d = 0
+    n_init_centroids = list()
     for i in range(n_streams):
         df = pd.read_pickle(f'{data_folder}/{filenames[i]}')
         F.append(df['outlying_attributes'])
@@ -66,7 +67,7 @@ if __name__ == '__main__':
         labels.append(y)
         df = df.drop(['label', 'outlying_attributes'], axis=1)
         X = df.to_numpy()
-
+        n_init_centroids.append(X[0:nclusters,:])
         columns = list(df.columns)
         feature_names[i] = columns
         attributes.append(d)
@@ -75,18 +76,19 @@ if __name__ == '__main__':
         ts = TemporalDataStream(X,y, ordered=True)
         sources.append(ts)
  
+
     print(f'attributes {attributes}')
     print(f'source len {len(sources)}')
     print(f'total attributes {d}')
 
     results = run_exos_simulator(sources, d, k, attributes, feature_names, 
-                                 window_size, n_clusters = (), n_init_data = (), 
+                                 window_size, n_clusters = (), n_init_centroids = n_init_centroids, 
                                  round_flag=round_flag, threshold=threshold)
-
     
     dirpath = os.path.join(cwd, args.relpath)
     if not os.path.exists(dirpath):
         os.makedirs(dirpath)
     filepath = f'{dirpath}/{basic_filename}.pkl' ##15_10K_Case1_1.pkl
+    print(f'save result to {filepath}')
     with open(filepath, 'wb') as f:
         pickle.dump(results, f) 

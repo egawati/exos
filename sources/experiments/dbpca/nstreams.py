@@ -84,7 +84,6 @@ if __name__ == '__main__':
     results = run_exos_simulator(sources, d, k, attributes, feature_names, 
                                  window_size, n_clusters = (), n_init_centroids = n_init_centroids, 
                                  round_flag=round_flag, threshold=threshold)
-
     
     path = os.path.join(cwd, rel_path)
     if not os.path.exists(path):
