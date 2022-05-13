@@ -24,6 +24,7 @@ def define_arguments():
     parser.add_argument('--multiplier', default=10, type=int)
     parser.add_argument('--threshold', default=0.05, type=float)
     parser.add_argument('--round_flag', default=False, type=bool)
+    parser.add_argument('--nclusters', default=8, type=bool)
     args = parser.parse_args()
     return args 
 
@@ -60,6 +61,7 @@ if __name__ == '__main__':
     
     d = 0
     n_init_centroids = list()
+    nclusters = args.nclusters
     for i in range(n_streams):
         df = pd.read_pickle(f'{data_folder}/{filenames[i]}')
         F.append(df['outlying_attributes'])
