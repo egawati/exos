@@ -317,3 +317,63 @@ def get_performance_case( n_streams,
     print(f'Comparing experiments stored in {result_folder} with ground truth stores in {gt_folder}')
     print(f'Perfomance is stored is {performance_folder}')
     return df_aggregate
+
+def get_performance_window(n_streams, 
+                          bfname, 
+                          gt_folder,
+                          rel_path,
+                          performance_folder,
+                          exp_num=1,
+                          window_sizes=(),
+                          non_data_attr=2,
+                          vcase='Case1'):
+        
+    cwd = os.getcwd()
+    result_folder = os.path.join(cwd, rel_path)
+    print(f'result folder is {result_folder}')
+    performance_folder=os.path.join(cwd, performance_folder)
+    print(f'performance folder is {performance_folder}')
+
+    if not os.path.exists(performance_folder):
+        os.makedirs(performance_folder)
+    
+    windows = list()
+    simulation_times = list()
+    precision_means = list()
+    recall_means = list()
+    f1_score_means = list()
+
+    gt_folder_exp = f'{gt_folder}/{exp_num}'
+    print(f'gt_folder in get performance case is {gt_folder}')
+
+    basic_filename = f'{n_streams}_{bfname}_{exp_num}'
+    gt_filename = f'{basic_filename}.pkl'
+    print(f'gt filename is {gt_filename}')
+    
+    for window_size in window_sizes:
+        result_filename = f'{basic_filename}_w{window_size}.pkl'
+        df, s_time = aggregate_performance(gt_folder=gt_folder_exp, 
+                                           gt_filename=gt_filename, 
+                                           result_folder=result_folder, 
+                                           result_filename= result_filename,
+                                           performance_folder=performance_folder,
+                                           n_streams=n_streams, 
+                                           window_size=window_size, 
+                                           non_data_attr=non_data_attr)
+        simulation_times.append(s_time)
+        precision_means.append(df['precision'].mean())
+        recall_means.append(df['recall'].mean())
+        f1_score_means.append(df['f1_score'].mean())
+        experiments.append(i)
+    
+    accuracy = {'experiment' : experiments, 
+                'precision' : precision_means, 
+                'recall': recall_means,
+                'f1_score' : f1_score_means,
+                'running_time' : simulation_times}
+    
+    df_aggregate = pd.DataFrame(accuracy)
+    df_aggregate.to_pickle(f'{performance_folder}/aggregate_{gt_filename}')
+    print(f'Comparing experiments stored in {result_folder} with ground truth stores in {gt_folder}')
+    print(f'Perfomance is stored is {performance_folder}')
+    return df_aggregate
