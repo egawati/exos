@@ -337,7 +337,6 @@ def get_performance_window(n_streams,
     if not os.path.exists(performance_folder):
         os.makedirs(performance_folder)
     
-    windows = list()
     simulation_times = list()
     precision_means = list()
     recall_means = list()
@@ -364,9 +363,8 @@ def get_performance_window(n_streams,
         precision_means.append(df['precision'].mean())
         recall_means.append(df['recall'].mean())
         f1_score_means.append(df['f1_score'].mean())
-        experiments.append(i)
     
-    accuracy = {'experiment' : experiments, 
+    accuracy = {'window_size' : window_size, 
                 'precision' : precision_means, 
                 'recall': recall_means,
                 'f1_score' : f1_score_means,
