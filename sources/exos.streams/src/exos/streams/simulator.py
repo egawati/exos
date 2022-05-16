@@ -78,7 +78,7 @@ def run_exos_simulator(sources, d, k, attributes, feature_names,
     """
     start = time.perf_counter()
     logging.info("Start exos simulator")
-    logging.infor(f"window size is {window_size}")
+    logging.info(f"window size is {window_size}")
     n_streams = len(sources)
 
     ### initialize Value
