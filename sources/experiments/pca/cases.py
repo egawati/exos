@@ -27,6 +27,23 @@ def define_arguments():
     args = parser.parse_args()
     return args 
 
+def define_arguments():
+    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--ex_number', type=int, required=True)
+    parser.add_argument('--nstreams', type=int, required=True)
+    parser.add_argument('--bfname', type=str, required=True)
+    parser.add_argument('--dfolder', type=str, required=True)
+    parser.add_argument('--relpath', type=str, required=True)
+    parser.add_argument('--k', default=1, type=int)
+    parser.add_argument('--wsize', default=1000, type=int)
+    parser.add_argument('--multiplier', default=10, type=int)
+    parser.add_argument('--threshold', default=0.05, type=float)
+    parser.add_argument('--round_flag', default=False, type=bool)
+    parser.add_argument('--nclusters', default=8, type=bool)
+    args = parser.parse_args()
+    return args 
+
 if __name__ == '__main__':
 
     args = define_arguments()
@@ -59,6 +76,8 @@ if __name__ == '__main__':
     feature_names = {} 
     
     d = 0
+    n_init_centroids = list()
+    nclusters = args.nclusters
     for i in range(n_streams):
         df = pd.read_pickle(f'{data_folder}/{filenames[i]}')
         F.append(df['outlying_attributes'])
@@ -66,7 +85,7 @@ if __name__ == '__main__':
         labels.append(y)
         df = df.drop(['label', 'outlying_attributes'], axis=1)
         X = df.to_numpy()
-
+        n_init_centroids.append(X[0:nclusters,:])
         columns = list(df.columns)
         feature_names[i] = columns
         attributes.append(d)
@@ -75,6 +94,7 @@ if __name__ == '__main__':
         ts = TemporalDataStream(X,y, ordered=True)
         sources.append(ts)
  
+
     print(f'attributes {attributes}')
     print(f'source len {len(sources)}')
     print(f'total attributes {d}')
@@ -88,5 +108,6 @@ if __name__ == '__main__':
     if not os.path.exists(dirpath):
         os.makedirs(dirpath)
     filepath = f'{dirpath}/{basic_filename}.pkl' ##15_10K_Case1_1.pkl
+    print(f'save result to {filepath}')
     with open(filepath, 'wb') as f:
         pickle.dump(results, f) 
