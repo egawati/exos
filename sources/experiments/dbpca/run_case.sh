@@ -1,6 +1,6 @@
 #!/bin/bash
 N=15
-case="Case4"
+case="Case1"
 version="v3"
 D="../../../../OutlierGen/exos/${case}_${version}"
 bfname="10K_${case}"
