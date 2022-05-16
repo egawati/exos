@@ -364,7 +364,7 @@ def get_performance_window(n_streams,
         recall_means.append(df['recall'].mean())
         f1_score_means.append(df['f1_score'].mean())
     
-    accuracy = {'window_size' : window_size, 
+    accuracy = {'window_size' : window_sizes, 
                 'precision' : precision_means, 
                 'recall': recall_means,
                 'f1_score' : f1_score_means,
