@@ -11,5 +11,5 @@ relpath="pickles/${case}_${version}/windows/exp_${ex_num}"
 
 for ((i=1; i<$nsets; i++))
 do
-	python3 cases.py --ex_number $ex_num --nstreams $N --bfname $bfname --dfolder $D --relpath $relpath --wsize ${windows[$i-1]}
+	python3 windows.py --ex_number $ex_num --nstreams $N --bfname $bfname --dfolder $D --relpath $relpath --wsize ${windows[$i-1]}
 done
