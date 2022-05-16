@@ -8,7 +8,7 @@ from metrics import get_performance_window
 
 if __name__ == '__main__':
 
-	case = 'Case4'
+	case = 'Case1'
 	version = '_v3'
 	bfname = f'10K_{case}'
 	n_streams = 15
