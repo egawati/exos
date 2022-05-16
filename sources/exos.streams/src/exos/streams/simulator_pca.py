@@ -22,8 +22,8 @@ logging.basicConfig(format='%(message)s', level=logging.INFO)
 
 
 def run_naive_exos_simulator(sources, d, k, attributes, feature_names, 
-                             window_size, n_clusters = (), n_init_data = (), 
-                             round_flag=True, threshold=0.0):
+                             window_size, n_clusters = (), n_init_centroids = (), 
+                             round_flag=True, threshold=0.0, n_init_data=()):
     """
     Parameters
     ----------
@@ -133,7 +133,7 @@ def run_naive_exos_simulator(sources, d, k, attributes, feature_names,
         else:
             n_attrs = d - attributes[stream_id]
 
-        clustering = SequentialKMeans(n_attrs)
+        clustering = SequentialKMeans(d=n_attrs, l=ncluster, init_centroids=n_init_centroids[stream_id])
         C_queues[stream_id].put(clustering)
 
         neighbor = Process(target=run_temporal_neighbors,
