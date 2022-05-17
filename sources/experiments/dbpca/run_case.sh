@@ -10,7 +10,7 @@
 
 
 M=3
-case="Case1"
+case="Case4"
 D="../../../../OutlierGen/exos/small_cases/${case}"
 bfname="1K_${case}"
 relpath="pickles/small_cases/${case}"
