@@ -3,11 +3,11 @@ title: "EXOS Performance Evaluation"
 author: "Egawati Panjei"
 date: "`r Sys.Date()`"
 output:
+  pdf_document:
+    toc: yes
   html_document:
     toc: yes
     toc_float: yes
-  pdf_document:
-    toc: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -22,14 +22,14 @@ Dataset _i_ for each case is generated using the same seed random number. Hence,
 ## Case 1
 
 ```{r}
-df_case1 = read.csv('dbpca/pickles/performance/Case1/aggregate_15_10K_Case1_30.csv')
+df_case1 = read.csv('dbpca/pickles/performance/small_cases/Case1/aggregate_3_1K_Case1_30.csv')
 df_case1
 ```
 
 ## Case 4
 
 ```{r}
-df_case4 = read.csv('dbpca/pickles/performance/Case4/aggregate_15_10K_Case4_30.csv')
+df_case4 = read.csv('dbpca/pickles/performance/small_cases/Case4/aggregate_3_1K_Case4_30.csv')
 df_case4
 ```
 

@@ -11,7 +11,7 @@
 
 <meta name="author" content="Egawati Panjei" />
 
-<meta name="date" content="2022-05-08" />
+<meta name="date" content="2022-05-17" />
 
 <title>EXOS Performance Evaluation</title>
 
@@ -1508,7 +1508,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">EXOS Performance Evaluation</h1>
 <h4 class="author">Egawati Panjei</h4>
-<h4 class="date">2022-05-08</h4>
+<h4 class="date">2022-05-17</h4>
 
 </div>
 
@@ -1526,75 +1526,75 @@ number of inlier and outlier data points. The difference is in their
 data attribute correlation.</p>
 <div id="case-1" class="section level2">
 <h2>Case 1</h2>
-<pre class="r"><code>df_case1 = read.csv(&#39;dbpca/pickles/performance/Case1/aggregate_15_10K_Case1_30.csv&#39;)
+<pre class="r"><code>df_case1 = read.csv(&#39;dbpca/pickles/performance/small_cases/Case1/aggregate_3_1K_Case1_30.csv&#39;)
 df_case1</code></pre>
 <pre><code>##    experiment precision    recall  f1_score running_time
-## 1           1 0.9121222 0.6742460 0.7581076     43.48957
-## 2           2 0.8627222 0.6107571 0.7002900     43.71341
-## 3           3 0.9391556 0.6709714 0.7651223     43.96031
-## 4           4 0.9018079 0.6712333 0.7478692     43.53199
-## 5           5 0.9620333 0.6927849 0.7926332     44.23652
-## 6           6 0.9174111 0.6836159 0.7611473     44.03168
-## 7           7 0.9190889 0.6649190 0.7514966     43.98473
-## 8           8 0.8883143 0.6616825 0.7412251     43.62066
-## 9           9 0.9294127 0.6860270 0.7742514     44.16683
-## 10         10 0.9030111 0.6582762 0.7467393     44.42039
-## 11         11 0.9228778 0.6954317 0.7817240     43.90644
-## 12         12 0.9018286 0.6648698 0.7456533     43.77420
-## 13         13 0.9215627 0.6780095 0.7612376     44.20242
-## 14         14 0.8789476 0.6375159 0.7253344     43.83694
-## 15         15 0.8948333 0.6548746 0.7411063     43.94390
-## 16         16 0.9195794 0.6662611 0.7538053     44.13076
-## 17         17 0.8991889 0.6503857 0.7361406     44.05734
-## 18         18 0.9053476 0.6897429 0.7638855     43.92518
-## 19         19 0.9098931 0.6822778 0.7590703     43.90918
-## 20         20 0.9272206 0.6627511 0.7592260     44.11758
-## 21         21 0.9217222 0.6662524 0.7589832     43.65052
-## 22         22 0.9143063 0.6905286 0.7709330     43.76140
-## 23         23 0.9037238 0.7092095 0.7680099     43.99387
-## 24         24 0.9449079 0.6812913 0.7786458     43.91784
-## 25         25 0.9070770 0.6889778 0.7645008     43.96320
-## 26         26 0.9549667 0.6956937 0.7936294     43.69568
-## 27         27 0.8746524 0.6806556 0.7406413     43.69984
-## 28         28 0.8985841 0.6758754 0.7508982     44.11883
-## 29         29 0.8708071 0.6503873 0.7286918     43.93447
-## 30         30 0.7988212 0.6627603 0.7036146     44.28376</code></pre>
+## 1           1 0.5305556 0.7166667 0.5755556     11.16485
+## 2           2 0.5944444 0.6416667 0.5883333     11.22272
+## 3           3 0.5805556 0.6444444 0.5798413     11.08926
+## 4           4 0.5583333 0.6166667 0.5726190     11.42335
+## 5           5 0.6027778 0.6277778 0.5866667     11.15206
+## 6           6 0.4805556 0.6638889 0.5407143     11.22820
+## 7           7 0.5166667 0.5944444 0.5296825     11.23469
+## 8           8 0.5088889 0.5294444 0.5066931     11.15765
+## 9           9 0.5527778 0.5750000 0.5343651     11.18522
+## 10         10 0.5388889 0.5527778 0.5222222     11.24516
+## 11         11 0.5000000 0.5000000 0.4777778     11.10427
+## 12         12 0.5444444 0.6361111 0.5644444     11.20386
+## 13         13 0.5166667 0.6194444 0.5385714     11.16366
+## 14         14 0.5111111 0.6611111 0.5566667     11.06926
+## 15         15 0.4583333 0.5083333 0.4738889     11.13464
+## 16         16 0.6700000 0.6361111 0.6312698     11.22130
+## 17         17 0.6750000 0.6694444 0.6432540     11.15420
+## 18         18 0.5972222 0.6222222 0.5859524     11.18812
+## 19         19 0.5472222 0.6361111 0.5527778     11.16732
+## 20         20 0.6266667 0.6211111 0.5809524     11.13932
+## 21         21 0.5722222 0.5750000 0.5419048     11.32427
+## 22         22 0.6444444 0.6500000 0.6134921     11.18158
+## 23         23 0.6066667 0.6777778 0.6004762     11.17796
+## 24         24 0.5966667 0.6555556 0.5860317     11.19333
+## 25         25 0.4972222 0.6805556 0.5607143     11.13376
+## 26         26 0.5216667 0.6488889 0.5513757     11.09964
+## 27         27 0.4861111 0.4916667 0.4794444     11.11297
+## 28         28 0.5777778 0.7277778 0.6144444     11.32180
+## 29         29 0.5111111 0.4944444 0.4722222     11.16073
+## 30         30 0.6277778 0.6083333 0.5996825     11.45709</code></pre>
 </div>
 <div id="case-4" class="section level2">
 <h2>Case 4</h2>
-<pre class="r"><code>df_case4 = read.csv(&#39;dbpca/pickles/performance/Case4/aggregate_15_10K_Case4_30.csv&#39;)
+<pre class="r"><code>df_case4 = read.csv(&#39;dbpca/pickles/performance/small_cases/Case4/aggregate_3_1K_Case4_30.csv&#39;)
 df_case4</code></pre>
 <pre><code>##    experiment precision    recall  f1_score running_time
-## 1           1 0.9164778 0.6739762 0.7593747     43.64827
-## 2           2 0.8634111 0.6099444 0.7010496     43.80902
-## 3           3 0.9410000 0.6702302 0.7641184     43.75594
-## 4           4 0.9025063 0.6703429 0.7480583     43.61513
-## 5           5 0.9615000 0.6882135 0.7895402     43.91414
-## 6           6 0.9195000 0.6831206 0.7626047     43.99893
-## 7           7 0.9187444 0.6586095 0.7475022     43.94333
-## 8           8 0.8899794 0.6667714 0.7445775     43.70337
-## 9           9 0.9365976 0.6864746 0.7784071     44.02096
-## 10         10 0.9027389 0.6587937 0.7475211     44.19689
-## 11         11 0.9252889 0.7000492 0.7859586     44.05833
-## 12         12 0.9029397 0.6679587 0.7476245     43.69912
-## 13         13 0.9186333 0.6712206 0.7576184     44.02532
-## 14         14 0.8823532 0.6408825 0.7274201     44.00314
-## 15         15 0.8945000 0.6520921 0.7393985     44.16800
-## 16         16 0.9188746 0.6652095 0.7536188     44.23551
-## 17         17 0.8959333 0.6497294 0.7345150     44.10043
-## 18         18 0.8983952 0.6827746 0.7573400     44.12348
-## 19         19 0.9078683 0.6791079 0.7571432     44.11483
-## 20         20 0.9296429 0.6647786 0.7623860     44.36835
-## 21         21 0.9235000 0.6678151 0.7603745     43.79056
-## 22         22 0.9164698 0.6909373 0.7718588     44.17115
-## 23         23 0.9049587 0.7076984 0.7676054     44.16056
-## 24         24 0.9483048 0.6848254 0.7824826     44.18433
-## 25         25 0.9022111 0.6908524 0.7613557     44.01492
-## 26         26 0.9566000 0.6967937 0.7951088     44.33244
-## 27         27 0.8730730 0.6808746 0.7409514     43.70218
-## 28         28 0.8968794 0.6750778 0.7495402     43.89961
-## 29         29 0.8642238 0.6497476 0.7245399     43.81950
-## 30         30 0.7904142 0.6703820 0.7029776     44.45250</code></pre>
+## 1           1 0.5611111 0.7555556 0.6088889     11.10616
+## 2           2 0.5194444 0.5750000 0.5229365     11.21000
+## 3           3 0.5472222 0.6250000 0.5496825     11.16100
+## 4           4 0.5666667 0.6583333 0.5853175     11.24222
+## 5           5 0.6250000 0.6277778 0.5892063     11.13956
+## 6           6 0.4972222 0.6527778 0.5405556     11.12045
+## 7           7 0.5283333 0.6200000 0.5429365     11.29755
+## 8           8 0.5000000 0.5777778 0.5169048     11.16045
+## 9           9 0.6000000 0.5666667 0.5517460     11.19042
+## 10         10 0.6333333 0.6527778 0.6076190     11.26226
+## 11         11 0.4277778 0.4055556 0.4022222     11.15099
+## 12         12 0.5216667 0.6000000 0.5381746     11.18038
+## 13         13 0.4694444 0.5861111 0.5027778     11.19985
+## 14         14 0.5111111 0.6611111 0.5601587     11.07977
+## 15         15 0.5111111 0.5333333 0.5111111     11.15410
+## 16         16 0.5944444 0.6166667 0.5690476     11.24763
+## 17         17 0.6722222 0.6888889 0.6517460     11.15730
+## 18         18 0.6055556 0.5722222 0.5522222     11.19341
+## 19         19 0.5694444 0.6694444 0.5784921     11.14410
+## 20         20 0.6250000 0.6083333 0.5765873     11.14221
+## 21         21 0.5744444 0.6155556 0.5597884     11.29272
+## 22         22 0.5916667 0.6222222 0.5736508     11.17476
+## 23         23 0.6183333 0.7127778 0.6263492     11.22256
+## 24         24 0.6222222 0.6777778 0.6112698     11.08572
+## 25         25 0.5188889 0.7211111 0.5872222     11.12132
+## 26         26 0.5477778 0.7111111 0.5830952     11.21196
+## 27         27 0.4972222 0.5027778 0.4905556     11.13760
+## 28         28 0.5722222 0.7111111 0.5966667     11.14866
+## 29         29 0.5666667 0.5694444 0.5352381     11.12403
+## 30         30 0.6472222 0.6055556 0.6035714     11.17501</code></pre>
 </div>
 </div>
 <div id="precision" class="section level1">
@@ -1606,13 +1606,13 @@ df_case4</code></pre>
 ##  F test to compare two variances
 ## 
 ## data:  df_case1$precision and df_case4$precision
-## F = 0.88582, num df = 29, denom df = 29, p-value = 0.7463
+## F = 0.98496, num df = 29, denom df = 29, p-value = 0.9677
 ## alternative hypothesis: true ratio of variances is not equal to 1
 ## 95 percent confidence interval:
-##  0.4216172 1.8610959
+##  0.4688073 2.0694015
 ## sample estimates:
 ## ratio of variances 
-##          0.8858161</code></pre>
+##          0.9849622</code></pre>
 <p>The var test shows that the true ratio of precision variances of Case
 1 and Case 4 is equal to 1 (accept the null hypothesis).</p>
 </div>
@@ -1623,13 +1623,13 @@ df_case4</code></pre>
 ##  Two Sample t-test
 ## 
 ## data:  df_case1$precision and df_case4$precision
-## t = 0.0098005, df = 58, p-value = 0.4961
+## t = -0.20301, df = 58, p-value = 0.5801
 ## alternative hypothesis: true difference in means is greater than 0
 ## 95 percent confidence interval:
-##  -0.01360973         Inf
+##  -0.027701       Inf
 ## sample estimates:
 ## mean of x mean of y 
-## 0.9068643 0.9067840</code></pre>
+## 0.5584259 0.5614259</code></pre>
 <p>The t test shows that there is no difference between the precision
 mean of Case 1 and Case 4. We accept the null hypothesis.</p>
 </div>
@@ -1643,13 +1643,13 @@ mean of Case 1 and Case 4. We accept the null hypothesis.</p>
 ##  F test to compare two variances
 ## 
 ## data:  df_case1$recall and df_case4$recall
-## F = 1.0173, num df = 29, denom df = 29, p-value = 0.9635
+## F = 0.76749, num df = 29, denom df = 29, p-value = 0.4806
 ## alternative hypothesis: true ratio of variances is not equal to 1
 ## 95 percent confidence interval:
-##  0.4841843 2.1372783
+##  0.3652992 1.6124979
 ## sample estimates:
 ## ratio of variances 
-##           1.017269</code></pre>
+##          0.7674922</code></pre>
 <p>The var test shows that the true ratio of recall variances of Case 1
 and Case 4 is equal to 1 (accept the null hypothesis).</p>
 </div>
@@ -1660,13 +1660,13 @@ and Case 4 is equal to 1 (accept the null hypothesis).</p>
 ##  Two Sample t-test
 ## 
 ## data:  df_case1$recall and df_case4$recall
-## t = 0.019553, df = 58, p-value = 0.4922
+## t = -0.42003, df = 58, p-value = 0.662
 ## alternative hypothesis: true difference in means is greater than 0
 ## 95 percent confidence interval:
-##  -0.008395057          Inf
+##  -0.03651697         Inf
 ## sample estimates:
 ## mean of x mean of y 
-## 0.6719422 0.6718428</code></pre>
+## 0.6160926 0.6234259</code></pre>
 <p>The t test shows that there is no difference between the recall mean
 of Case 1 and Case 4. We accept the null hypothesis.</p>
 </div>
@@ -1680,13 +1680,13 @@ of Case 1 and Case 4. We accept the null hypothesis.</p>
 ##  F test to compare two variances
 ## 
 ## data:  df_case1$f1_score and df_case4$f1_score
-## F = 0.96131, num df = 29, denom df = 29, p-value = 0.9161
+## F = 0.8971, num df = 29, denom df = 29, p-value = 0.772
 ## alternative hypothesis: true ratio of variances is not equal to 1
 ## 95 percent confidence interval:
-##  0.4575488 2.0197041
+##  0.4269881 1.8848040
 ## sample estimates:
 ## ratio of variances 
-##           0.961308</code></pre>
+##          0.8971003</code></pre>
 <p>The var test shows that the true ratio of f1 score variances of Case
 1 and Case 4 is equal to 1 (accept the null hypothesis).</p>
 </div>
@@ -1697,13 +1697,13 @@ of Case 1 and Case 4. We accept the null hypothesis.</p>
 ##  Two Sample t-test
 ## 
 ## data:  df_case1$f1_score and df_case4$f1_score
-## t = 0.011983, df = 58, p-value = 0.4952
+## t = -0.17492, df = 58, p-value = 0.5691
 ## alternative hypothesis: true difference in means is greater than 0
 ## 95 percent confidence interval:
-##  -0.009423786          Inf
+##  -0.02241589         Inf
 ## sample estimates:
 ## mean of x mean of y 
-## 0.7541538 0.7540857</code></pre>
+## 0.5587346 0.5608580</code></pre>
 <p>The t test shows that there is no difference between the F1 score
 mean of Case 1 and Case 4. We accept the null hypothesis since p-value
 is not small enough.</p>
