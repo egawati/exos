@@ -38,7 +38,7 @@ from metrics import get_performance_case
 
 if __name__ == '__main__':
 
-	case = 'Case4'
+	case = 'Case1'
 	bfname = f'1K_{case}'
 	n_streams = 3
 	n_experiments = 30
