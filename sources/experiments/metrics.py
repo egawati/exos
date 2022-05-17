@@ -87,6 +87,7 @@ def compute_performance_v2(gt_folder, gt_filename, result_folder, result_filenam
     windows = tuple(results['output'].keys()) ## get tuple of window ids : (window_0, window_1, ...)
     n_outliers = 0
     accuracies = {}
+    print(f'window size {window_size}')
     for i in range(n_streams):
         precision_list = list()
         recall_list = list()
@@ -97,6 +98,8 @@ def compute_performance_v2(gt_folder, gt_filename, result_folder, result_filenam
         df = df[['label', 'outlying_attributes']]
         for j, window in enumerate(windows):
             outlier_indices = results['output'][window][i]['outlier_indices']
+            print(f'window {window}')
+            print(f'outlier_indices {outlier_indices}')
             if outlier_indices is not None:
                 outlier_indices = outlier_indices[i]
                 new_df = df.iloc[j*window_size:(j+1)*window_size].reset_index(drop=True)
