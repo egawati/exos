@@ -128,9 +128,9 @@ def run_exos_simulator(sources, d, k, attributes, feature_names,
     estimator_p.start()
 
     neighbors = list()
+    ncluster = n_clusters[0]     
     for stream_id in range(n_streams):
-        ncluster = 4
-        if n_clusters:
+        if len(n_clusters) > 1:
             ncluster = n_clusters[stream_id]
         init_data = None 
         if n_init_data:
@@ -140,6 +140,7 @@ def run_exos_simulator(sources, d, k, attributes, feature_names,
         else:
             n_attrs = d - attributes[stream_id]
 
+        logging.info(f'Stream {stream_id} initial centroids are : {n_init_centroids[stream_id]}')
         clustering = SequentialKMeans(d=n_attrs, l=ncluster, init_centroids=n_init_centroids[stream_id])
         C_queues[stream_id].put(clustering)
 

@@ -9,12 +9,12 @@
 # wsize=1000
 
 
-M=2
-case="Case1"
-D="../../../../OutlierGen/exos/small_cases/Case1"
-bfname="1000_${case}"
-relpath="pickles/small_cases/Case1"
-nsets=2
+M=3
+case="Case4"
+D="../../../../OutlierGen/exos/small_cases/${case}"
+bfname="1K_${case}"
+relpath="pickles/small_cases/${case}"
+nsets=30
 wsize=100
 
 for ((i=1; i<$nsets; i++))

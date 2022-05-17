@@ -84,7 +84,7 @@ if __name__ == '__main__':
     print(f'total attributes {d}')
 
     results = run_exos_simulator(sources, d, k, attributes, feature_names, 
-                                 window_size, n_clusters = (), n_init_centroids = n_init_centroids, 
+                                 window_size, n_clusters = (nclusters,), n_init_centroids = n_init_centroids, 
                                  round_flag=round_flag, threshold=threshold)
     
     dirpath = os.path.join(cwd, args.relpath)

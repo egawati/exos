@@ -119,6 +119,9 @@ def run_dbpca_estimator(value, neigh_condition, exos_condition, est_queues, est_
                 all_outliers_est = Y.dot(Q.T) # m x d
                 Q_queue.put(Q)
 
+                logging.info(f'Y shape dxk is {Y.shape}')
+                logging.info(f'Principal component k is {k}')
+
                 for stream_id in range(n_streams):
                     outliers, outliers_est = slice_estimating_matrix(stream_id,
                                                                      all_outliers,
@@ -128,8 +131,6 @@ def run_dbpca_estimator(value, neigh_condition, exos_condition, est_queues, est_
                                                                      n_streams
                                                                      )
                     est_queues[stream_id].put((outliers, outliers_est, outlier_indices))
-                    if stream_id == 1:
-                        print(f'stream 1 outlier_indices is {outlier_indices} @estimator')
                 end = time.perf_counter() #end measuring estimation function
                 est_time_queue.put(end - start)
                 with exos_condition:
@@ -207,6 +208,10 @@ def run_naive_pca_estimator(value, neigh_condition, exos_condition, est_queues,
                 Y = all_outliers.dot(eig_vectors[:,0:k]) ## mxk
                 all_outliers_est = Y.dot(eig_vectors[:,0:k].T) # m x d
 
+                logging.info(f'Y shape dxk is {Y.shape}')
+                logging.info(f'Principal component k is {k}')
+
+
                 for stream_id in range(n_streams):
                     outliers, outliers_est = slice_estimating_matrix(stream_id,
                                                                      all_outliers,
@@ -216,8 +221,6 @@ def run_naive_pca_estimator(value, neigh_condition, exos_condition, est_queues,
                                                                      n_streams
                                                                      )
                     est_queues[stream_id].put((outliers, outliers_est, outlier_indices))
-                    if stream_id == 1:
-                        print(f'stream 1 outlier_indices is {outlier_indices} @estimator')
                 end = time.perf_counter() #end measuring estimation function
                 est_time_queue.put(end - start)
                 with exos_condition:

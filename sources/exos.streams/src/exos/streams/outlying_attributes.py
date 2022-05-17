@@ -53,7 +53,7 @@ def run_outlying_attributes(value, exos_condition, est_queue, neigh_queue,
                 d = inlier_centroids.shape[1]
                 outlying_attributes = list()
                 logging.info(f'At stream {stream_id} Outliers are {outliers}\n')
-                logging.info(f'Estimated values of outliers are {outliers_est}')
+                logging.info(f'Estimated values of outliers at {stream_id} are {outliers_est}')
                 
                 for i, outlier in enumerate(outliers):
                     out_attributes = find_outlying_attributes( outlier, 
