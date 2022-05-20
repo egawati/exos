@@ -40,18 +40,22 @@ def get_confusion_matrix(out_attrs, ground_truth, total_attributes):
     return confusion_matrix
 
 def get_confusion_matrix_v2(out_attrs, ground_truth, total_attributes):
-    TP = 0 
-    FP = 0
+    TP = 0 ## increment by one when an outlying attribute is in the ground truth
+    FP = 0 ## increment by one when an outlying attribute is not in the ground truth
     for out_attr in out_attrs:
         if out_attr in ground_truth:
-            TP += 1
+            TP = TP + 1
         else:
-            FP += 1
-    FN = 0
+            FP = FP + 1
+    
+    FN = 0 ## an attribute that is in ground truth is not found in outlying attribute list
     for gt in ground_truth:
-        if gt not in out_attr:
-            FN =+ 1
-    TN = total_attributes - (TP + FP + FN)
+        if gt not in out_attrs:
+            FN = FN + 1
+
+    print(f'total attributes is {total_attributes}')
+    
+    TN = total_attributes - (TP + FP + FN) ## an attribute that is not in the ground truth is neither found in outlying attribute list
     confusion_matrix = {'TP' : TP,
                         'FP' : FP,
                         'FN' : FN,
@@ -88,6 +92,7 @@ def compute_performance_v2(gt_folder, gt_filename, result_folder, result_filenam
     n_outliers = 0
     accuracies = {}
     print(f'window size {window_size}')
+    acc_info = {}
     for i in range(n_streams):
         precision_list = list()
         recall_list = list()
@@ -96,21 +101,33 @@ def compute_performance_v2(gt_folder, gt_filename, result_folder, result_filenam
         df = pd.read_pickle(gt_path)
         n_attributes = df.shape[1] - non_data_attr
         df = df[['label', 'outlying_attributes']]
+
+        stream_list = list()
+        out_attr_list = list()
+        gt_list = list()
+        TP_list = list()
+        FP_list = list()
+        TN_list = list()
+        FN_list = list()
+        window_list = list()
+        outlier_list = list()
+
         for j, window in enumerate(windows):
             outlier_indices = results['output'][window][i]['outlier_indices']
-            print(f'window {window}')
-            print(f'outlier_indices {outlier_indices}')
+            # print(f'window {window}')
+            # print(f'outlier_indices {outlier_indices}')
             if outlier_indices is not None:
                 outlier_indices = outlier_indices[i]
                 new_df = df.iloc[j*window_size:(j+1)*window_size].reset_index(drop=True)
                 n_outliers += len(outlier_indices)
                 ground_truth = new_df.iloc[outlier_indices].reset_index(drop=True)
                 outlying_attributes = results['output'][window][i]['out_attrs']
-                print(f'outlier_indices {outlier_indices}')
+                # print(f'outlier_indices {outlier_indices}')
                 for idx , gt in ground_truth.iterrows():
-                    print(f'idx {idx} at window {window} at stream {i}')
-                    print(f'out_attrs is {outlying_attributes[idx]}')
-                    print(f'ground_truth is {gt["outlying_attributes"]}')
+                    # print(f'idx {idx} at window {window} at stream {i}')
+                    # print(f'out_attrs is {outlying_attributes[idx]}')
+                    # print(f'ground_truth is {gt["outlying_attributes"]}')
+                    print(f'at stream {i+1}, total attributes is {n_attributes}')
                     confusion_matrix = get_confusion_matrix_v2(outlying_attributes[idx], 
                                                             gt['outlying_attributes'], 
                                                             n_attributes)
@@ -120,16 +137,43 @@ def compute_performance_v2(gt_folder, gt_filename, result_folder, result_filenam
                     precision_list.append(precision)
                     recall_list.append(recall)
                     f1_score_list.append(f1_score)
+
+                    out_attrs = outlying_attributes[idx]
+                    for key, val in out_attrs.items():
+                        out_attrs[key] = round(val, 3)
+                    out_attr_list.append(list(out_attrs.keys()))
+
+                    gt_list.append(gt['outlying_attributes'])
+                    TP_list.append(confusion_matrix['TP'])
+                    FP_list.append(confusion_matrix['FP'])
+                    FN_list.append(confusion_matrix['FN'])
+                    TN_list.append(confusion_matrix['TN'])
+                    stream_list.append(i+1)
+                    window_list.append(window)
+                outlier_list.extend(outlier_indices)
+
         accuracies[i] = {'precision' : precision_list,
                          'recall' : recall_list,
                          'f1_score' : f1_score_list,}
-    return n_outliers, accuracies, results['simulator_time']
+        acc_info[i] = {'stream_id' : stream_list,
+                       'window' : window_list,
+                       'outlier_indices': outlier_list,
+                       'outlying_attributes' : out_attr_list,
+                       'ground_truth' : gt_list,
+                       'TP' : TP_list,
+                       'FP' : FP_list,
+                       'FN' : FN_list,
+                       'TN' : TN_list,
+                       'precision' : precision_list,
+                       'recall' : recall_list,
+                       'f1_score' : f1_score_list,}
+    return n_outliers, accuracies, results['simulator_time'], acc_info
 
 def aggregate_performance(gt_folder, gt_filename, result_folder, result_filename,
                           performance_folder,
                           n_streams, window_size, non_data_attr=2):
     print(f'gt_folder in aggregate performance is {gt_folder}')
-    n_outliers, accuracies, simulation_time = compute_performance_v2(gt_folder, 
+    n_outliers, accuracies, simulation_time, acc_info = compute_performance_v2(gt_folder, 
                                                                      gt_filename, 
                                                                      result_folder, 
                                                                      result_filename,
@@ -137,12 +181,15 @@ def aggregate_performance(gt_folder, gt_filename, result_folder, result_filename
                                                                      window_size, 
                                                                      non_data_attr)
     df= pd.DataFrame(accuracies[0])
+    info_df = pd.DataFrame(acc_info[0])
     for i in range(1, n_streams):
         ndf = pd.DataFrame(accuracies[i])
-        df = df.append(ndf, ignore_index = True)
+        df = pd.concat([df, ndf], axis=0)
+        ninfo_df = pd.DataFrame(acc_info[i])
+        info_df = pd.concat([info_df, ninfo_df], axis=0)
     ### for sanity checking
     if n_outliers == df.shape[0]:
-        df.to_pickle(f"{performance_folder}/{result_filename}")
+        info_df.to_pickle(f"{performance_folder}/{result_filename}")
     return df, simulation_time
 
 def get_performance_df_v2(n_streams=2, 
