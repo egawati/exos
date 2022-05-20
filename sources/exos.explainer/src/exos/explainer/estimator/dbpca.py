@@ -6,7 +6,7 @@ from numpy.linalg import qr
 import logging
 logging.basicConfig(format='%(message)s', level=logging.INFO)
 
-def initialize_Q(d,k):
+def initialize_Q(d,k, mu=0, sigma = 1):
     """
     Initialize estimated eigen vectors 
     Parameters
@@ -21,8 +21,9 @@ def initialize_Q(d,k):
         initial estimated eigenvectors
     """
     S0 = None
+    np.random.seed(42)
     for i in range(k):
-        normal1 = np.random.normal(0, 1, d).reshape((-1,1))
+        normal1 = np.random.normal(mu, sigma, d).reshape((-1,1))
         if S0 is None:
             S0 = normal1
         else:
