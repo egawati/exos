@@ -39,10 +39,10 @@ from metrics import get_performance_case
 if __name__ == '__main__':
 
 	case = 'Case1'
-	bfname = f'1K_{case}'
-	n_streams = 3
-	n_experiments = 30
-	window_size = 100
+	bfname = f'w1K_{case}'
+	n_streams = 2
+	n_experiments = 1
+	window_size = 1000
 	non_data_attr = 2
 	
 	cwd = os.getcwd()

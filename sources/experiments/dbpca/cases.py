@@ -25,6 +25,8 @@ def define_arguments():
     parser.add_argument('--threshold', default=0.05, type=float)
     parser.add_argument('--round_flag', default=False, type=bool)
     parser.add_argument('--nclusters', default=8, type=bool)
+    parser.add_argument('--init_mu', default=0.0, type=float)
+    parser.add_argument('--init_sigma', default=1.0, type=float)
     args = parser.parse_args()
     return args 
 
@@ -83,9 +85,11 @@ if __name__ == '__main__':
     print(f'source len {len(sources)}')
     print(f'total attributes {d}')
 
+
     results = run_exos_simulator(sources, d, k, attributes, feature_names, 
                                  window_size, n_clusters = (nclusters,), n_init_centroids = n_init_centroids, 
-                                 round_flag=round_flag, threshold=threshold)
+                                 round_flag=round_flag, threshold=threshold, 
+                                 init_mu=args.init_mu, init_sigma=args.init_sigma)
     
     dirpath = os.path.join(cwd, args.relpath)
     if not os.path.exists(dirpath):
