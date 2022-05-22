@@ -42,9 +42,9 @@ class SequentialKMeans:
     
     def absorb_datum(self, x, label=False):
         idx = 0
-        min_dist = np.linalg.norm(self.clusters[idx].centroid- x)
+        min_dist = np.linalg.norm(self.clusters[idx].centroid - x)
         for i in range(1, self.k):
-            dist = np.linalg.norm(self.clusters[i].centroid- x)
+            dist = np.linalg.norm(self.clusters[i].centroid - x)
             if dist < min_dist:
                 idx = i
                 min_dist = dist

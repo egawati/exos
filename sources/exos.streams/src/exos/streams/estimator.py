@@ -1,6 +1,7 @@
 from exos.explainer.estimator import dbpca
 from exos.explainer.estimator import pca
 from .common import get_outliers
+from .common import get_outlier_indices
 
 import os
 import numpy as np
@@ -110,11 +111,15 @@ def run_dbpca_estimator(value, neigh_condition, exos_condition, est_queues, est_
             else:
                 logging.info('Run estimator\n')
                 arr = concatenate_buffers(hash_d, n_streams)
-                W = arr.T # d x m 
+                new_y_d, outlier_indices, outlier_index = get_outlier_indices(y_d, n_streams)
+
+                W = arr.T.copy() # d x m 
+                W = np.delete(W, outlier_index, axis=1)
+
                 Q = Q_queue.get() # d x k 
                 Q = dbpca.update_Q(W,d,k,Q) # d x k 
                 
-                all_outliers, new_y_d, outlier_indices = get_outliers(arr, y_d, n_streams) ## numpy array of n_outliers x d
+                all_outliers = get_outliers(arr, outlier_index) ## numpy array of n_outliers x d
                 Y = all_outliers.dot(Q) # m x k
                 all_outliers_est = Y.dot(Q.T) # m x d
                 Q_queue.put(Q)

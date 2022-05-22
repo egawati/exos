@@ -1,15 +1,7 @@
 import numpy as np
 
-def get_outliers(arr, y_d, n_streams):
-    """
-    arr : numpy arry
-        a matrik of D x N
-    y_d : dictionary
-        key-value pair, key refers to stream_id, value refers to list of outlier index
-        y_d{0: array([2, 3]), 1: array([3])}
-    n_streams: int 
-        number of streams
-    """
+
+def get_outlier_indices(y_d, n_streams):
     new_y_d = {}
     new_y_d[0] = list()
 
@@ -29,7 +21,19 @@ def get_outliers(arr, y_d, n_streams):
         for idx in y_d[i]:
             if idx in outlier_index:
                 new_y_d[i].append(outlier_index.index(idx))
-    
-    outliers= np.take(arr, outlier_index, axis=0)
 
-    return outliers, new_y_d, outlier_indices 
+    return new_y_d, outlier_indices, outlier_index
+
+
+def get_outliers(arr, outlier_index):
+    """
+    arr : numpy arry
+        a matrik of N x D
+    y_d : dictionary
+        key-value pair, key refers to stream_id, value refers to list of outlier index
+        y_d{0: array([2, 3]), 1: array([3])}
+    n_streams: int 
+        number of streams
+    """
+    outliers= np.take(arr, outlier_index, axis=0)
+    return outliers

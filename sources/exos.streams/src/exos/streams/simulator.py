@@ -25,7 +25,8 @@ logging.basicConfig(format='%(message)s', level=logging.INFO)
 
 def run_exos_simulator(sources, d, k, attributes, feature_names, 
                        window_size, n_clusters = (), n_init_centroids = (), 
-                       round_flag=True, threshold=0.0, n_init_data=()):
+                       round_flag=True, threshold=0.0, n_init_data=(), 
+                       init_mu=0, init_sigma=1):
     """
     Parameters
     ----------
@@ -100,7 +101,7 @@ def run_exos_simulator(sources, d, k, attributes, feature_names,
     Q_queue = manager.Queue()
     exos_queues = [manager.Queue() for _ in range(n_streams)]
 
-    Q = dbpca.initialize_Q(d,k)
+    Q = dbpca.initialize_Q(d,k, mu=init_mu, sigma=init_sigma)
     Q_queue.put(Q)
 
     ### Initialize conditions
