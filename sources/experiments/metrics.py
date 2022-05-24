@@ -319,7 +319,8 @@ def get_performance_case( n_streams,
                           n_experiments=30,
                           window_size=1000,
                           non_data_attr=2,
-                          vcase='Case1'):
+                          vcase='Case1',
+                          noutattrs=None):
         
     cwd = os.getcwd()
     result_folder = os.path.join(cwd, rel_path)
@@ -340,6 +341,8 @@ def get_performance_case( n_streams,
         gt_folder_exp = f'{gt_folder}/{i}'
         print(f'gt_folder in get performance case is {gt_folder}')
         basic_filename = f'{n_streams}_{bfname}_{i}'
+        if noutattrs is not None:
+            basic_filename=f'{basic_filename}_OA{noutattrs}'
         gt_filename = f'{basic_filename}.pkl'
         result_filename = f'{basic_filename}.pkl'
         df, s_time = aggregate_performance(gt_folder=gt_folder_exp, 
@@ -425,3 +428,4 @@ def get_performance_window(n_streams,
     print(f'Comparing experiments stored in {result_folder} with ground truth stores in {gt_folder}')
     print(f'Perfomance is stored is {performance_folder}')
     return df_aggregate
+

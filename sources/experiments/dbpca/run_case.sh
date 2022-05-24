@@ -1,38 +1,45 @@
 #!/bin/bash
-# N=15
-# case="Case4"
-# version="v3"
-# D="../../../../OutlierGen/exos/${case}_${version}"
-# bfname="10K_${case}"
-# relpath="pickles/${case}_${version}"
-# nsets=31
-# wsize=1000
-
-
 M=2
-case="Case1"
-D="../../../../OutlierGen/exos/small_cases/${case}"
-bfname="w1K_${case}"
-relpath="pickles/small_cases/${case}"
+bname="w1K"
 nsets=1
 wsize=1000
-mu=5.0
+mu=5
 sigma=0.5
+version=""
+non_data_attr=2
 
+data_dir="../../../../OutlierGen/exos/small_cases"
+gt_folder="../../../../OutlierGen/exos/small_cases"
+relpath="pickles/small_cases"
+performance_folder="pickles/performance/small_cases"
+
+
+case="Case4"
+D="${data_dir}/${case}"
+bfname="${bname}_${case}"
+path="${relpath}/${case}"
 for ((i=1; i<$nsets+1; i++))
 do
 	python3 cases.py --ex_number $i --nstreams $M --bfname $bfname --dfolder $D --relpath $relpath --wsize ${wsize} --init_mu ${mu} --init_sigma ${sigma}
 done
 
-# M=2
-# case="Case4"
-# D="../../../../OutlierGen/exos/small_cases/${case}"
-# bfname="1K_${case}"
-# relpath="pickles/small_cases/${case}"
-# nsets=1
-# wsize=100
+for ((i=1; i<$nsets+1; i++))
+do
+	python3 performance_case.py --bfname ${bname} --case ${case} --relpath ${relpath} --gt_folder ${gt_folder} --performance_folder ${performance_folder} --nstreams $M --nsets ${nsets} --window_size ${wsize} --non_data_attr ${non_data_attr}
+done
 
-# for ((i=1; i<$nsets+1; i++))
-# do
-# 	python3 cases.py --ex_number $i --nstreams $M --bfname $bfname --dfolder $D --relpath $relpath --wsize ${wsize}
-# done
+
+
+case="Case1"
+D="${data_dir}/${case}"
+bfname="${bname}_${case}"
+path="${relpath}/${case}"
+for ((i=1; i<$nsets+1; i++))
+do
+	python3 cases.py --ex_number $i --nstreams $M --bfname $bfname --dfolder $D --relpath $relpath --wsize ${wsize} --init_mu ${mu} --init_sigma ${sigma}
+done
+
+for ((i=1; i<$nsets+1; i++))
+do
+	python3 performance_case.py --bfname ${bname} --case ${case} --relpath ${relpath} --gt_folder ${gt_folder} --performance_folder ${performance_folder} --nstreams $M --nsets ${nsets} --window_size ${wsize} --non_data_attr ${non_data_attr}
+done
