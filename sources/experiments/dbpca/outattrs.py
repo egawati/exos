@@ -22,7 +22,7 @@ def define_arguments():
     parser.add_argument('--k', default=1, type=int)
     parser.add_argument('--wsize', default=1000, type=int)
     parser.add_argument('--multiplier', default=10, type=int)
-    parser.add_argument('--threshold', default=0.0, type=float)
+    parser.add_argument('--threshold', default=0.1, type=float)
     parser.add_argument('--round_flag', default=False, type=bool)
     parser.add_argument('--nclusters', default=8, type=bool)
     parser.add_argument('--init_mu', default=0.0, type=float)

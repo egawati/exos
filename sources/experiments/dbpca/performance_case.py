@@ -29,6 +29,8 @@ if __name__ == '__main__':
 
 	case = args.case
 	version = args.version
+	if version == 'v':
+		version = ''
 	bfname = f'{args.bfname}_{case}'
 	n_streams = args.nstreams
 	n_experiments = args.nsets

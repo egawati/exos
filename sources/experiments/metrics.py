@@ -311,6 +311,45 @@ def recap_performance_by_cases(rel_path =  'pickles/performance/cases',
     df.to_pickle(f'{rel_path}/avg_performance_{bname}.pkl')
     return df
 
+def recap_performance_by_noutattrs(rel_path =  'pickles/performance/small_cases', 
+                                   cases = ('Case1' , 'Case4'),
+                                   min_noutattrs=1,
+                                   max_noutattrs= 10,
+                                   bname = 'w1K',
+                                   nstreams=2,
+                                   nsets = 1,
+                                   version = ""):
+    cwd = os.getcwd()
+    avg_precision = list()
+    avg_recall = list()
+    avg_f1_score = list()
+    avg_running_time = list()
+    case_list = list()
+    noutattrs_list = list()
+    for case in cases:
+        for noutattrs in range(min_noutattrs, max_noutattrs+1):
+            bfname = f'aggregate_{nstreams}_{bname}_{case}_{nsets}_OA{noutattrs}'
+            file_path = f'{rel_path}/{case}{version}/{bfname}.pkl'
+            path = os.path.join(cwd, file_path)
+            df = pd.read_pickle(path)
+            avg_precision.append(df['precision'].mean())
+            avg_recall.append(df['recall'].mean())
+            avg_f1_score.append(df['f1_score'].mean())
+            avg_running_time.append(df['running_time'].mean())
+            case_list.append(case)
+            noutattrs_list.append(noutattrs)
+
+    performance = {'case' : case_list, 
+                   'noutattrs' : noutattrs_list,
+                   'avg_precision' : avg_precision,
+                   'avg_recall' : avg_recall,
+                   'avg_f1_score' : avg_f1_score,
+                   'avg_running_time' : avg_running_time,}
+    df = pd.DataFrame(performance)
+    df.to_pickle(f'{rel_path}/avg_performance_{nstreams}_{bname}_OA.pkl')
+    df.to_csv(f'{rel_path}/avg_performance_{nstreams}_{bname}_OA.csv')
+    return df
+
 def get_performance_case( n_streams, 
                           bfname, 
                           gt_folder,

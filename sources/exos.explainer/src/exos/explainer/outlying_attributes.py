@@ -108,7 +108,7 @@ def find_outlying_attributes(outlier_point, est_outlier,
     #feature_scores = compute_simple_feature_contribution(d, (classifier,))
     attr_contributions = compute_attribute_contribution(d, classifier)
     result = map_feature_scores(feature_names, attr_contributions, threshold)
-    if stream_id == 0 and (idx==5 or idx==6):
+    if stream_id == 0 and idx==4:
         logging.info(f'^^^^^^^^^^^^^^^^^^^^^')
         logging.info(f'stream {stream_id+1} index {idx} est_outlier {est_outlier} inlier class {inlier_class.shape}')
         logging.info(f'stream {stream_id+1} index {idx} outliers {outlier_point} outlier class {outlier_class.shape}')
