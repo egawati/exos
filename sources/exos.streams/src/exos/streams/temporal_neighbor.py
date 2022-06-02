@@ -26,8 +26,8 @@ def run_temporal_neighbors(neigh_condition, neigh_queue, bqueue, stream_id, nclu
                 X, y = buffer
                 for i in range(X.shape[0]):
                     x = X[i,:]
-                    # if y[i] == 0: ## only absorb inliers
-                    clustering.absorb_datum(x)
+                    if y[i] == 0: ## only absorb inliers in the clusters
+                        clustering.absorb_datum(x)
                 #inlier_centroids = [cluster.centroid for cluster in clustering.clusters]
                 #inlier_centroids = np.array(inlier_centroids)
                 end = time.perf_counter()

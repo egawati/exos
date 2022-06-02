@@ -26,7 +26,7 @@ logging.basicConfig(format='%(message)s', level=logging.INFO)
 def run_exos_simulator(sources, d, k, attributes, feature_names, 
                        window_size, n_clusters = (), n_init_centroids = (), 
                        round_flag=True, threshold=0.0, n_init_data=(), 
-                       init_mu=0, init_sigma=1):
+                       init_mu=0, init_sigma=1, normalized=False):
     """
     Parameters
     ----------
@@ -117,7 +117,7 @@ def run_exos_simulator(sources, d, k, attributes, feature_names,
         p.start()
     
     consumer = Process(target=stream_consumer,
-                       args=(condition, queues, buffer_queue, buffer_queues, y_queue),
+                       args=(condition, queues, buffer_queue, buffer_queues, y_queue, normalized),
                        daemon=True)
     consumer.start()
 

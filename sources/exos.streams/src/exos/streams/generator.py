@@ -5,6 +5,8 @@ import sys
 
 from skmultiflow.data import TemporalDataStream
 
+from sklearn import preprocessing
+
 from .utils import time_unit_numpy
 from .utils import generate_timestamp
 import setproctitle
@@ -80,7 +82,7 @@ def stream_producer(condition, queue, source, source_id, window_size):
     logging.info(f'producer {source_id} / {os.getpid()} exit')
     sys.stdout.flush()
 
-def stream_consumer(condition, queues, buffer_queue, buffer_queues, y_queue):
+def stream_consumer(condition, queues, buffer_queue, buffer_queues, y_queue, normalized=False):
 	"""
 	condition: mp.Condition
 	queues: list of Queues (of length n_stream)
@@ -111,11 +113,16 @@ def stream_consumer(condition, queues, buffer_queue, buffer_queues, y_queue):
 	    if (exit):
 	    	break
 	    for X, y, source_id in results:
-	        hash_d[source_id] = X
-	        ### assuming we have run outlier detection
-	        ### a data point is an outlier is = 1
-	        y_d[source_id] = np.where(y==1)[0]
-	        buffer_queues[source_id].put((X,y))
+	    	if normalized:
+	    		scaler = preprocessing.StandardScaler().fit(X)
+	    		new_X = scaler.transform(X)
+	    	else:
+	    		new_X = X
+	    	hash_d[source_id] = new_X
+	    	### assuming we have run outlier detection
+	    	### a data point is an outlier is = 1
+	    	y_d[source_id] = np.where(y==1)[0]
+	    	buffer_queues[source_id].put((new_X,y))
 	        #if source_id == 1:
 	        #S	print(f'stream 1 {y_d[source_id]}')
 	    buffer_queue.put(hash_d)
