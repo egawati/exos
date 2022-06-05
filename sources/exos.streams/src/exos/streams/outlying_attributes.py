@@ -23,8 +23,8 @@ def run_outlying_attributes(value, exos_condition, est_queue, neigh_queue,
                 logging.info(f"OA {stream_id} DONE\n")
                 break
             else:
-                logging.info('-------------------')
-                logging.info(f'Generating outlying attributes at {stream_id +1}\n')
+                # logging.info('-------------------')
+                # logging.info(f'Generating outlying attributes at {stream_id +1}\n')
                 outliers, outliers_est, outlier_indices = estimator_result
                 
                 clustering, neigh_run_time = neigh_result
@@ -35,7 +35,7 @@ def run_outlying_attributes(value, exos_condition, est_queue, neigh_queue,
                     cluster_counts.append(cluster.N)
 
                 inlier_centroids = np.array(inlier_centroids)
-                logging.info(f'temporal neighbors at stream {stream_id+1} are {inlier_centroids}')
+                # logging.info(f'temporal neighbors at stream {stream_id+1} are {inlier_centroids}')
                 
                 if outliers.shape[0] == 0:
                     exos_queue.put({"out_attrs" : None, 
@@ -50,8 +50,8 @@ def run_outlying_attributes(value, exos_condition, est_queue, neigh_queue,
 
                 d = inlier_centroids.shape[1]
                 outlying_attributes = list()
-                logging.info(f'At stream {stream_id + 1} Outliers are {outliers}\n')
-                logging.info(f'Estimated values of outliers at {stream_id+1} are {outliers_est}')
+                # logging.info(f'At stream {stream_id + 1} Outliers are {outliers}\n')
+                # logging.info(f'Estimated values of outliers at {stream_id+1} are {outliers_est}')
                 
                 for i, outlier in enumerate(outliers):
                     slog = None
@@ -73,8 +73,8 @@ def run_outlying_attributes(value, exos_condition, est_queue, neigh_queue,
                                 "outlier_indices" : outlier_indices, 
                                 "temporal_neighbor_time" : neigh_run_time, 
                                 "out_attrs_time" : end-start})
-                logging.info(f'outlying attributes at stream {stream_id+1} is {outlying_attributes}')
-                logging.info('-------------------')
+                # logging.info(f'outlying attributes at stream {stream_id+1} is {outlying_attributes}')
+                # logging.info('-------------------')
                 with exos_condition:
                     with value.get_lock():
                         value.value -= 1

@@ -32,7 +32,6 @@ class SequentialKMeans:
                 self.clusters[i] = ClusterKMeans(centroid, 0)
         else:
             init_centroids = init_data[0:l,:]
-            logging.info(f'init centroids are {init_centroids}')
             kmeans = KMeans(n_clusters=self.k, init=init_centroids).fit(init_data)
             centroids = kmeans.cluster_centers_
             for i in range(self.k):

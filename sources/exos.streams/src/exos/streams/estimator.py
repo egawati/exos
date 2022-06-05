@@ -109,7 +109,7 @@ def run_dbpca_estimator(value, neigh_condition, exos_condition, est_queues, est_
                 logging.info(f"estimator done\n")
                 break
             else:
-                logging.info('Run estimator\n')
+                # logging.info('Run estimator\n')
                 arr = concatenate_buffers(hash_d, n_streams)
                 new_y_d, outlier_indices, outlier_index = get_outlier_indices(y_d, n_streams)
 
@@ -124,8 +124,8 @@ def run_dbpca_estimator(value, neigh_condition, exos_condition, est_queues, est_
                 all_outliers_est = Y.dot(Q.T) # m x d
                 Q_queue.put(Q)
 
-                logging.info(f'Y shape dxk is {Y.shape}')
-                logging.info(f'Principal component k is {k}')
+                # logging.info(f'Y shape dxk is {Y.shape}')
+                # logging.info(f'Principal component k is {k}')
 
                 for stream_id in range(n_streams):
                     outliers, outliers_est = slice_estimating_matrix(stream_id,
@@ -142,7 +142,7 @@ def run_dbpca_estimator(value, neigh_condition, exos_condition, est_queues, est_
                     exos_condition.wait_for(lambda : value.value==0)
                 with value.get_lock():
                     value.value = n_streams
-                logging.info("Ready to waking up temporal neighbor\n")
+                # logging.info("Ready to waking up temporal neighbor\n")
                 with neigh_condition:
                     neigh_condition.notify_all()
                 logging.info("estimator --> temporal neighbor woken\n")
@@ -205,7 +205,7 @@ def run_naive_pca_estimator(value, neigh_condition, exos_condition, est_queues,
                 logging.info(f"estimator done\n")
                 break
             else:
-                logging.info('Run estimator\n')
+                # logging.info('Run estimator\n')
                 
                 arr = concatenate_buffers(hash_d, n_streams) ## m x d
                 eig_vectors, _ = pca.do_pca(arr) ## d x k
@@ -213,8 +213,8 @@ def run_naive_pca_estimator(value, neigh_condition, exos_condition, est_queues,
                 Y = all_outliers.dot(eig_vectors[:,0:k]) ## mxk
                 all_outliers_est = Y.dot(eig_vectors[:,0:k].T) # m x d
 
-                logging.info(f'Y shape dxk is {Y.shape}')
-                logging.info(f'Principal component k is {k}')
+                # logging.info(f'Y shape dxk is {Y.shape}')
+                # logging.info(f'Principal component k is {k}')
 
 
                 for stream_id in range(n_streams):
@@ -232,7 +232,7 @@ def run_naive_pca_estimator(value, neigh_condition, exos_condition, est_queues,
                     exos_condition.wait_for(lambda : value.value==0)
                 with value.get_lock():
                     value.value = n_streams
-                logging.info("Ready to waking up temporal neighbor\n")
+                # logging.info("Ready to waking up temporal neighbor\n")
                 with neigh_condition:
                     neigh_condition.notify_all()
                 logging.info("estimator --> temporal neighbor woken\n")
