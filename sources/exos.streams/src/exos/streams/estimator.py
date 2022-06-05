@@ -209,7 +209,7 @@ def run_naive_pca_estimator(value, neigh_condition, exos_condition, est_queues,
                 
                 arr = concatenate_buffers(hash_d, n_streams) ## m x d
                 eig_vectors, _ = pca.do_pca(arr) ## d x k
-                all_outliers, new_y_d, outlier_indices = get_outliers(arr, y_d, n_streams) ## numpy array of n_outliers x d
+                new_y_d, outlier_indices, outlier_index = get_outlier_indices(y_d, n_streams)
                 Y = all_outliers.dot(eig_vectors[:,0:k]) ## mxk
                 all_outliers_est = Y.dot(eig_vectors[:,0:k].T) # m x d
 
