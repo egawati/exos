@@ -109,7 +109,7 @@ def run_dbpca_estimator(value, neigh_condition, exos_condition, est_queues, est_
                 logging.info(f"estimator done\n")
                 break
             else:
-                # logging.info('Run estimator\n')
+                logging.info('Run estimator\n')
                 arr = concatenate_buffers(hash_d, n_streams)
                 new_y_d, outlier_indices, outlier_index = get_outlier_indices(y_d, n_streams)
 
@@ -142,7 +142,7 @@ def run_dbpca_estimator(value, neigh_condition, exos_condition, est_queues, est_
                     exos_condition.wait_for(lambda : value.value==0)
                 with value.get_lock():
                     value.value = n_streams
-                # logging.info("Ready to waking up temporal neighbor\n")
+                logging.info("Ready to waking up temporal neighbor\n")
                 with neigh_condition:
                     neigh_condition.notify_all()
                 logging.info("estimator --> temporal neighbor woken\n")

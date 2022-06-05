@@ -23,8 +23,8 @@ def run_outlying_attributes(value, exos_condition, est_queue, neigh_queue,
                 logging.info(f"OA {stream_id} DONE\n")
                 break
             else:
-                # logging.info('-------------------')
-                # logging.info(f'Generating outlying attributes at {stream_id +1}\n')
+                logging.info('-------------------')
+                logging.info(f'Generating outlying attributes at {stream_id +1}\n')
                 outliers, outliers_est, outlier_indices = estimator_result
                 
                 clustering, neigh_run_time = neigh_result
