@@ -77,7 +77,6 @@ def run_exos_simulator(sources, d, k, attributes, feature_names,
         results['simulator_time']
         real number, running time required to run the entire windows
     """
-    start = time.perf_counter()
     logging.info("Start exos simulator")
     logging.info(f"window size is {window_size}")
     n_streams = len(sources)
@@ -110,6 +109,7 @@ def run_exos_simulator(sources, d, k, attributes, feature_names,
     neigh_condition = Condition()
 
     ### Start processes
+    start = time.perf_counter()
     producers = [Process(target=stream_producer, 
                          args=(condition, queues[i], sources[i], i, window_size), 
                          daemon=True) for i in range(n_streams)]
